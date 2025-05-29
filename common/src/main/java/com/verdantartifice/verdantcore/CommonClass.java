@@ -1,6 +1,6 @@
-package com.example.examplemod;
+package com.verdantartifice.verdantcore;
 
-import com.example.examplemod.platform.Services;
+import com.verdantartifice.verdantcore.platform.Services;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.world.item.Items;
 
@@ -23,9 +23,9 @@ public class CommonClass {
         // your own abstraction layer. You can learn more about this in our provided services class. In this example
         // we have an interface in the common code and use a loader specific implementation to delegate our call to
         // the platform specific approach.
-        if (Services.PLATFORM.isModLoaded("examplemod")) {
+        if (Services.PLATFORM.isModLoaded("verdantcore")) {
 
-            Constants.LOG.info("Hello to examplemod");
+            Constants.LOG.info("Hello to verdantcore!");
         }
     }
 }

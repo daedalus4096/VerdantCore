@@ -1,4 +1,4 @@
-package com.example.examplemod;
+package com.verdantartifice.verdantcore;
 
 import net.minecraftforge.fml.common.Mod;
 

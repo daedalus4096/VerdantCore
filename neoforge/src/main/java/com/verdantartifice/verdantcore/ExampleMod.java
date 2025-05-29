@@ -1,4 +1,4 @@
-package com.example.examplemod;
+package com.verdantartifice.verdantcore;
 
 
 import net.neoforged.bus.api.IEventBus;

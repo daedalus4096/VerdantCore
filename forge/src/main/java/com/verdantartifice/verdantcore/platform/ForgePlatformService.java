@@ -1,10 +1,10 @@
-package com.example.examplemod.platform;
+package com.verdantartifice.verdantcore.platform;
 
-import com.example.examplemod.platform.services.IPlatformHelper;
+import com.verdantartifice.verdantcore.platform.services.IPlatformService;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.loading.FMLLoader;
 
-public class ForgePlatformHelper implements IPlatformHelper {
+public class ForgePlatformService implements IPlatformService {
 
     @Override
     public String getPlatformName() {

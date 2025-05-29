@@ -1,10 +1,10 @@
-package com.example.examplemod.platform;
+package com.verdantartifice.verdantcore.platform;
 
-import com.example.examplemod.platform.services.IPlatformHelper;
+import com.verdantartifice.verdantcore.platform.services.IPlatformService;
 import net.neoforged.fml.ModList;
 import net.neoforged.fml.loading.FMLLoader;
 
-public class NeoForgePlatformHelper implements IPlatformHelper {
+public class NeoForgePlatformService implements IPlatformService {
 
     @Override
     public String getPlatformName() {

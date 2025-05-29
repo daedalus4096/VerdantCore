@@ -1,6 +1,6 @@
-package com.example.examplemod.platform.services;
+package com.verdantartifice.verdantcore.platform.services;
 
-public interface IPlatformHelper {
+public interface IPlatformService {
 
     /**
      * Gets the name of the current platform
