@@ -1,0 +1,31 @@
+on:
+   release: 
+     types: [created]
+jobs:
+  generate:
+    name: Create release-artifacts
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Checkout the repository
+        uses: actions/checkout@master
+      - uses: actions/cache@v4
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: |
+            ${{ runner.os }}-gradle-
+      - name: Build the artifacts
+        run: ./gradlew build
+      - name: Upload the Forge artifacts
+        uses: skx/github-action-publish-binaries@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: forge/build/libs/verdantcore*.jar
+      - name: Upload the NeoForge artifacts
+        uses: skx/github-action-publish-binaries@master
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          args: neoforge/build/libs/verdantcore*.jar
