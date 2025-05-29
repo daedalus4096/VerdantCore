@@ -6,7 +6,7 @@ plugins {
 neoForge {
     version = neoforge_version
     // Automatically enable neoforge AccessTransformers if the file exists
-    def at = project(':common').file('src/main/resources/META-INF/accesstransformer.cfg')
+    def at = project(':common').file('src/main/resources/META-INF/accesstransformer.common.cfg')
     if (at.exists()) {
         accessTransformers.from(at.absolutePath)
     }
@@ -23,10 +23,14 @@ neoForge {
             client()
         }
         data {
+            programArguments = ['--mod', mod_id, '--all', '--output', rootProject.file('neoforge/src/generated/resources/').getAbsolutePath(), '--existing', rootProject.file('common/src/main/resources/').getAbsolutePath()]
             data()
         }
         server {
             server()
+        }
+        gameTestServer {
+            type = "gameTestServer"
         }
     }
     mods {
@@ -36,4 +40,13 @@ neoForge {
     }
 }
 
-sourceSets.main.resources { srcDir 'src/generated/resources' }
+dependencies {
+    // Common Networking
+    implementation "mysticdrew:common-networking-neoforge:${common_network_version}-${minecraft_version}"
+}
+
+sourceSets.main.resources.srcDir 'src/generated/resources'
+processResources {
+    from(project(":common").sourceSets.main.resources)
+    duplicatesStrategy(DuplicatesStrategy.EXCLUDE)
+}
