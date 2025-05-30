@@ -1,7 +1,6 @@
 package com.verdantartifice.verdantcore.platform.services;
 
 public interface IPlatformService {
-
     /**
      * Gets the name of the current platform
      *
@@ -33,4 +32,11 @@ public interface IPlatformService {
 
         return isDevelopmentEnvironment() ? "development" : "production";
     }
+
+    /**
+     * Determine if this code is currently running on the client side.
+     *
+     * @return true if executing on the client, false otherwise
+     */
+    boolean isClientDist();
 }

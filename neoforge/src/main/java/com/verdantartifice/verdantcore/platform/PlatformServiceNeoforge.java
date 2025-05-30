@@ -1,26 +1,28 @@
 package com.verdantartifice.verdantcore.platform;
 
 import com.verdantartifice.verdantcore.platform.services.IPlatformService;
-import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.loading.FMLLoader;
+import net.neoforged.fml.ModList;
+import net.neoforged.fml.loading.FMLEnvironment;
+import net.neoforged.fml.loading.FMLLoader;
 
-public class ForgePlatformService implements IPlatformService {
-
+public class PlatformServiceNeoforge implements IPlatformService {
     @Override
     public String getPlatformName() {
-
-        return "Forge";
+        return "NeoForge";
     }
 
     @Override
     public boolean isModLoaded(String modId) {
-
         return ModList.get().isLoaded(modId);
     }
 
     @Override
     public boolean isDevelopmentEnvironment() {
-
         return !FMLLoader.isProduction();
+    }
+
+    @Override
+    public boolean isClientDist() {
+        return FMLEnvironment.dist.isClient();
     }
 }
