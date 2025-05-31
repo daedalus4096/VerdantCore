@@ -55,6 +55,15 @@ repositories {
     maven {
         url = 'https://jm.gserv.me/repository/maven-public/'
     }
+    repositories {
+        maven {
+            url = 's3://verdantartifice-maven-repo/releases/'
+            credentials(AwsCredentials) {
+                accessKey = awsAccessKeyId
+                secretKey = awsSecretAccessKey
+            }
+        }
+    }
 }
 
 // Declare capabilities on the outgoing configurations.
@@ -132,6 +141,13 @@ publishing {
     repositories {
         maven {
             url System.getenv('local_maven_url')
+        }
+        maven {
+            url = 's3://verdantartifice-maven-repo/releases/'
+            credentials(AwsCredentials) {
+                accessKey = awsAccessKeyId
+                secretKey = awsSecretAccessKey
+            }
         }
     }
 }

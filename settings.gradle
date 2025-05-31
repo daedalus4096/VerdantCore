@@ -1,3 +1,10 @@
+buildscript {
+    ext {
+        awsAccessKeyId = System.env.VAMODS_AWS_ACCESS_KEY_ID ?: findProperty('vamods_aws_access_key_id')
+        awsSecretAccessKey = System.env.VAMODS_AWS_SECRET_ACCESS_KEY ?: findProperty('vamods_aws_secret_access_key')
+    }
+}
+
 pluginManagement {
     repositories {
         gradlePluginPortal()
