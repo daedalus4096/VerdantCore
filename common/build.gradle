@@ -26,6 +26,13 @@ dependencies {
     implementation "mysticdrew:common-networking-common:${common_network_version}-${minecraft_version}"
 }
 
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+        }
+    }
+}
+
 configurations {
     commonJava {
         canBeResolved = false

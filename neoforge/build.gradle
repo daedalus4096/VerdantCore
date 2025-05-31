@@ -45,6 +45,13 @@ dependencies {
     implementation "mysticdrew:common-networking-neoforge:${common_network_version}-${minecraft_version}"
 }
 
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+        }
+    }
+}
+
 sourceSets.main.resources.srcDir 'src/generated/resources'
 processResources {
     from(project(":common").sourceSets.main.resources)
