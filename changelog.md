@@ -1,3 +1,7 @@
+v0.0.4-indev
+------------
+* Delete stub code
+
 v0.0.3-indev
 ------------
 * Further buildscript fixes for Maven publishing
