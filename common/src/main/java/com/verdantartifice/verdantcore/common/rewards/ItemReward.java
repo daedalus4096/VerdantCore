@@ -72,7 +72,7 @@ public class ItemReward extends AbstractReward<ItemReward> {
         if (this.stack.has(DataComponents.CUSTOM_NAME)) {
             itemName.withStyle(ChatFormatting.ITALIC);
         }
-        return Component.translatable("label.primalmagick.research_table.reward", this.stack.getCount(), itemName);
+        return Component.translatable("label.verdantcore.research_table.reward", this.stack.getCount(), itemName);
     }
 
     @Override

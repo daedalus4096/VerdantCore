@@ -44,8 +44,8 @@ public class ExperienceReward extends AbstractReward<ExperienceReward> {
 
     @Override
     public Component getDescription(Player player) {
-        Component label = Component.translatable("label.primalmagick.experience.points");
-        return Component.translatable("label.primalmagick.research_table.reward", this.points, label);
+        Component label = Component.translatable("label.verdantcore.experience.points");
+        return Component.translatable("label.verdantcore.research_table.reward", this.points, label);
     }
 
     @Override

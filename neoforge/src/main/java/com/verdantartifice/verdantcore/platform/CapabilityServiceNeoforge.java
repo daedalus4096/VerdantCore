@@ -85,7 +85,7 @@ public class CapabilityServiceNeoforge implements ICapabilityService {
             return Optional.of(new ItemStackHandlerPMNeoforge(neoforgeHandler, null));
         } else if (level.getBlockEntity(pos) instanceof Container container) {
             // If the tile entity does not provide an item handler but does have an inventory, return a wrapper around that
-            return Optional.ofNullable(Services.ITEM_HANDLERS.wrap(container, face));
+            return Optional.ofNullable(ServicesVC.ITEM_HANDLERS.wrap(container, face));
         } else {
             // If the tile entity does not have an inventory at all, return null
             return Optional.empty();

@@ -86,7 +86,7 @@ public class LootTableReward extends AbstractReward<LootTableReward> {
 
     @Override
     public Component getDescription(Player player) {
-        return Component.translatable("label.primalmagick.research_table.reward", this.pullCount, Component.translatable(this.descTranslationKey));
+        return Component.translatable("label.verdantcore.research_table.reward", this.pullCount, Component.translatable(this.descTranslationKey));
     }
 
     @Override
