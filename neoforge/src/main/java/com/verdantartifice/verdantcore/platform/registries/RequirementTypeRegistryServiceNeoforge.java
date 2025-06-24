@@ -1,7 +1,7 @@
 package com.verdantartifice.verdantcore.platform.registries;
 
 import com.verdantartifice.verdantcore.Constants;
-import com.verdantartifice.verdantcore.common.registries.RegistryKeysPM;
+import com.verdantartifice.verdantcore.common.registries.RegistryKeysVC;
 import com.verdantartifice.verdantcore.common.research.requirements.RequirementType;
 import com.verdantartifice.verdantcore.platform.services.registries.IRequirementTypeRegistryService;
 import net.minecraft.core.Registry;
@@ -16,7 +16,7 @@ import java.util.function.Supplier;
  * @author Daedalus4096
  */
 public class RequirementTypeRegistryServiceNeoforge extends AbstractRegistryServiceNeoforge<RequirementType<?>> implements IRequirementTypeRegistryService {
-    public static final Registry<RequirementType<?>> TYPES = new RegistryBuilder<>(RegistryKeysPM.REQUIREMENT_TYPES)
+    public static final Registry<RequirementType<?>> TYPES = new RegistryBuilder<>(RegistryKeysVC.REQUIREMENT_TYPES)
             .sync(true)
             .create();
     private static final DeferredRegister<RequirementType<?>> DEFERRED_TYPES = DeferredRegister.create(TYPES, Constants.MOD_ID);

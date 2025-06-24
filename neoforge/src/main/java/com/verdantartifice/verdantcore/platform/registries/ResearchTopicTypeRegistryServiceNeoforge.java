@@ -1,7 +1,7 @@
 package com.verdantartifice.verdantcore.platform.registries;
 
 import com.verdantartifice.verdantcore.Constants;
-import com.verdantartifice.verdantcore.common.registries.RegistryKeysPM;
+import com.verdantartifice.verdantcore.common.registries.RegistryKeysVC;
 import com.verdantartifice.verdantcore.common.research.topics.ResearchTopicType;
 import com.verdantartifice.verdantcore.platform.services.registries.IResearchTopicTypeRegistryService;
 import net.minecraft.core.Registry;
@@ -16,7 +16,7 @@ import java.util.function.Supplier;
  * @author Daedalus4096
  */
 public class ResearchTopicTypeRegistryServiceNeoforge extends AbstractRegistryServiceNeoforge<ResearchTopicType<?>> implements IResearchTopicTypeRegistryService {
-    public static final Registry<ResearchTopicType<?>> TYPES = new RegistryBuilder<>(RegistryKeysPM.RESEARCH_TOPIC_TYPES)
+    public static final Registry<ResearchTopicType<?>> TYPES = new RegistryBuilder<>(RegistryKeysVC.RESEARCH_TOPIC_TYPES)
             .sync(true)
             .create();
     private static final DeferredRegister<ResearchTopicType<?>> DEFERRED_TYPES = DeferredRegister.create(TYPES, Constants.MOD_ID);
