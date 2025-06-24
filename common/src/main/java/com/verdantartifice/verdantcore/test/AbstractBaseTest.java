@@ -1,7 +1,7 @@
 package com.verdantartifice.verdantcore.test;
 
 import com.mojang.authlib.GameProfile;
-import com.verdantartifice.verdantcore.platform.Services;
+import com.verdantartifice.verdantcore.platform.ServicesVC;
 import io.netty.channel.ChannelHandler;
 import io.netty.channel.embedded.EmbeddedChannel;
 import net.minecraft.gametest.framework.GameTestHelper;
@@ -42,7 +42,7 @@ public abstract class AbstractBaseTest {
         ServerGamePacketListenerImpl listener = new ServerGamePacketListenerImpl(server, connection, player, cookie);
         ProtocolInfo<ServerGamePacketListener> info = GameProtocols.SERVERBOUND_TEMPLATE.bind(RegistryFriendlyByteBuf.decorator(server.registryAccess()));
         connection.setupInboundProtocol(info, listener);
-        Services.TEST.configureMockConnection(connection);
+        ServicesVC.TEST.configureMockConnection(connection);
         if (joinLevel) {
             helper.getLevel().getServer().getPlayerList().placeNewPlayer(connection, player, cookie);
         }
