@@ -55,14 +55,9 @@ repositories {
     maven {
         url = 'https://jm.gserv.me/repository/maven-public/'
     }
-    repositories {
-        maven {
-            url = 's3://verdantartifice-maven-repo/releases/'
-            credentials(AwsCredentials) {
-                accessKey = awsAccessKeyId
-                secretKey = awsSecretAccessKey
-            }
-        }
+    maven {
+        name = 'Verdant Artifice Mods'
+        url = 'https://d121e9zwckicwj.cloudfront.net'
     }
 }
 
