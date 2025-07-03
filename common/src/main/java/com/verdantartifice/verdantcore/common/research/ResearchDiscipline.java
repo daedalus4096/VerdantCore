@@ -35,7 +35,7 @@ import java.util.stream.Stream;
  * @author Daedalus4096
  */
 public record ResearchDiscipline(ResearchDisciplineKey key, Optional<AbstractRequirement<?>> unlockRequirementOpt, ResourceLocation iconLocation, Optional<Stat> craftingStat, 
-        Optional<Stat> expertiseStat, OptionalInt indexSortOrder) {
+        Optional<Stat> expertiseStat, Optional<Integer> indexSortOrder) {
     public static Codec<ResearchDiscipline> codec() {
         return RecordCodecBuilder.create(instance -> instance.group(
                 ResearchDisciplineKey.CODEC.fieldOf("key").forGetter(ResearchDiscipline::key),
@@ -43,7 +43,7 @@ public record ResearchDiscipline(ResearchDisciplineKey key, Optional<AbstractReq
                 ResourceLocation.CODEC.fieldOf("iconLocation").forGetter(ResearchDiscipline::iconLocation),
                 ResourceLocation.CODEC.optionalFieldOf("craftingStat").xmap(locOpt -> locOpt.map(StatsManager::getStat), statOpt -> statOpt.map(Stat::key)).forGetter(ResearchDiscipline::craftingStat),
                 ResourceLocation.CODEC.optionalFieldOf("expertiseStat").xmap(locOpt -> locOpt.map(StatsManager::getStat), statOpt -> statOpt.map(Stat::key)).forGetter(ResearchDiscipline::expertiseStat),
-                CodecUtils.asOptionalInt(Codec.INT.optionalFieldOf("indexSortOrder")).forGetter(ResearchDiscipline::indexSortOrder)
+                Codec.INT.optionalFieldOf("indexSortOrder").forGetter(ResearchDiscipline::indexSortOrder)
             ).apply(instance, ResearchDiscipline::new));
     }
     
