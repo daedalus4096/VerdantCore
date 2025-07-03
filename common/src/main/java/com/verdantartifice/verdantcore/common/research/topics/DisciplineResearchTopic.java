@@ -3,9 +3,10 @@ package com.verdantartifice.verdantcore.common.research.topics;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.verdantartifice.verdantcore.common.registries.RegistryKeysVC;
 import com.verdantartifice.verdantcore.common.research.ResearchDiscipline;
-import com.verdantartifice.verdantcore.common.research.ResearchDisciplines;
 import com.verdantartifice.verdantcore.common.research.keys.ResearchDisciplineKey;
+import com.verdantartifice.verdantcore.common.util.RegistryUtils;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -54,13 +55,13 @@ public class DisciplineResearchTopic extends AbstractResearchTopic<DisciplineRes
 
     @Override
     public boolean isUnread(Player player) {
-        ResearchDiscipline d = ResearchDisciplines.getDiscipline(player.registryAccess(), this.discipline);
+        ResearchDiscipline d = RegistryUtils.getEntry(RegistryKeysVC.RESEARCH_DISCIPLINES, this.discipline.getRootKey(), player.registryAccess());
         return d != null && d.isUnread(player);
     }
 
     @Override
     public Optional<Component> getUnreadTooltip(Player player) {
-        ResearchDiscipline d = ResearchDisciplines.getDiscipline(player.registryAccess(), this.discipline);
+        ResearchDiscipline d = RegistryUtils.getEntry(RegistryKeysVC.RESEARCH_DISCIPLINES, this.discipline.getRootKey(), player.registryAccess());
         int count = d == null ? 0 : d.getUnreadEntryCount(player);
         if (count == 1) {
             return Optional.of(Component.translatable("tooltip.verdantcore.unread_count.entry.single"));

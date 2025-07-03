@@ -3,9 +3,10 @@ package com.verdantartifice.verdantcore.common.research.topics;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.verdantartifice.verdantcore.common.research.ResearchEntries;
+import com.verdantartifice.verdantcore.common.registries.RegistryKeysVC;
 import com.verdantartifice.verdantcore.common.research.ResearchEntry;
 import com.verdantartifice.verdantcore.common.research.keys.ResearchEntryKey;
+import com.verdantartifice.verdantcore.common.util.RegistryUtils;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -60,7 +61,7 @@ public class EntryResearchTopic extends AbstractResearchTopic<EntryResearchTopic
 
     @Override
     public boolean isUnread(Player player) {
-        ResearchEntry e = ResearchEntries.getEntry(player.registryAccess(), this.entry);
+        ResearchEntry e = RegistryUtils.getEntry(RegistryKeysVC.RESEARCH_ENTRIES, this.entry.getRootKey(), player.registryAccess());
         return e != null && e.isUnread(player);
     }
 

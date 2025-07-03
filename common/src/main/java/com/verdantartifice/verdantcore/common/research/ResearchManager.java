@@ -3,6 +3,8 @@ package com.verdantartifice.verdantcore.common.research;
 import com.verdantartifice.verdantcore.common.registries.RegistryKeysVC;
 import com.verdantartifice.verdantcore.common.research.keys.AbstractResearchKey;
 import com.verdantartifice.verdantcore.common.research.keys.ResearchEntryKey;
+import com.verdantartifice.verdantcore.common.stats.StatsManager;
+import com.verdantartifice.verdantcore.common.util.RegistryUtils;
 import com.verdantartifice.verdantcore.platform.ServicesVC;
 import net.minecraft.Util;
 import net.minecraft.core.Holder;
@@ -25,6 +27,7 @@ import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -51,8 +54,6 @@ public class ResearchManager {
     // Registry of all defined scan triggers
     private static final List<IScanTrigger> SCAN_TRIGGERS = new ArrayList<>();
     
-    private static final ResearchEntryKey FIRST_STEPS = new ResearchEntryKey(ResearchEntries.FIRST_STEPS);
-
     private static Function<Player, List<AffinityIndexEntry>> memoizedAffinityIndexEntries = Util.memoize(ResearchManager::getAffinityIndexEntriesInner);
     
     public static Set<Integer> getAllCraftingReferences() {
@@ -69,13 +70,9 @@ public class ResearchManager {
     
     @Nullable
     public static Optional<ResearchEntry> getEntryForRecipe(RegistryAccess registryAccess, ResourceLocation recipeId) {
-        return ResearchEntries.stream(registryAccess)
+        return RegistryUtils.stream(RegistryKeysVC.RESEARCH_ENTRIES, registryAccess)
                 .filter(entry -> entry.getAllRecipeIds().contains(recipeId))
                 .findFirst();
-    }
-    
-    public static boolean hasStartedProgression(Player player) {
-        return FIRST_STEPS.isKnownBy(player);
     }
     
     public static boolean isRecipeVisible(ResourceLocation recipeId, Player player) {
@@ -200,7 +197,7 @@ public class ResearchManager {
             RegistryAccess registryAccess = player.level().registryAccess();
             ServicesVC.CAPABILITIES.knowledge(player).ifPresent(knowledge -> {
                 if (!knowledge.isResearchComplete(registryAccess, key)) {
-                    ResearchEntry entry = ResearchEntries.getEntry(registryAccess, key);
+                    ResearchEntry entry = RegistryUtils.getEntry(RegistryKeysVC.RESEARCH_ENTRIES, key.getRootKey(), registryAccess);
                     if (entry != null) {
                         // Recursively force-grant all of this entry's parent entries, even if not all of them are required
                         entry.parents().forEach(parentKey -> forceGrantWithAllParents(player, parentKey));
@@ -234,7 +231,7 @@ public class ResearchManager {
             RegistryAccess registryAccess = player.level().registryAccess();
             ServicesVC.CAPABILITIES.knowledge(player).ifPresent(knowledge -> {
                 if (!knowledge.isResearchComplete(registryAccess, key)) {
-                    ResearchEntry entry = ResearchEntries.getEntry(registryAccess, key);
+                    ResearchEntry entry = RegistryUtils.getEntry(RegistryKeysVC.RESEARCH_ENTRIES, key.getRootKey(), registryAccess);
                     if (entry != null) {
                         // Recursively force-grant all of this entry's parent entries, even if not all of them are required
                         entry.parents().forEach(parentKey -> forceGrantWithAllParents(player, parentKey));
@@ -296,7 +293,7 @@ public class ResearchManager {
         
         // Remove all recipes that are unlocked by the given research from the player's arcane recipe book
         if (player instanceof ServerPlayer serverPlayer) {
-            ResearchEntry entry = ResearchEntries.getEntry(player.level().registryAccess(), key);
+            ResearchEntry entry = RegistryUtils.getEntry(RegistryKeysVC.RESEARCH_ENTRIES, key.getRootKey(), player.level().registryAccess());
             if (entry != null) {
                 RecipeManager recipeManager = serverPlayer.level().getRecipeManager();
                 Set<RecipeHolder<?>> recipesToRemove = entry.getAllRecipeIds().stream().map(r -> recipeManager.byKey(r).orElse(null)).filter(Objects::nonNull).collect(Collectors.toSet());
@@ -355,7 +352,9 @@ public class ResearchManager {
             added = true;
         }
         
-        ResearchEntry entry = key instanceof ResearchEntryKey entryKey ? ResearchEntries.getEntry(registryAccess, entryKey) : null;
+        ResearchEntry entry = key instanceof ResearchEntryKey entryKey ?
+                RegistryUtils.getEntry(RegistryKeysVC.RESEARCH_ENTRIES, entryKey.getRootKey(), registryAccess) :
+                null;
         boolean entryComplete = true;   // Default to true for non-entry research (e.g. scan triggers)
         if (entry != null && !entry.stages().isEmpty()) {
             // Get the current stage number of the research entry
@@ -484,7 +483,9 @@ public class ResearchManager {
 
             // If completing this entry unlocked a new discipline, show a toast to the player
             if (entry != null && player instanceof ServerPlayer serverPlayer) {
-                ResearchDisciplines.streamIndexDisciplines(registryAccess)
+                RegistryUtils.stream(RegistryKeysVC.RESEARCH_DISCIPLINES, registryAccess)
+                        .filter(d -> d.indexSortOrder().isPresent())
+                        .sorted(Comparator.comparingInt(a -> a.indexSortOrder().get()))
                         .filter(d -> d.unlockRequirementOpt().map(req -> req.satisfiedBy(entry.key())).orElse(false))
                         .forEach(d -> PacketHandler.sendToPlayer(new UnlockDisciplinePacket(d), serverPlayer));
             }

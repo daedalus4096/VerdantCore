@@ -14,7 +14,6 @@ import com.verdantartifice.verdantcore.common.research.requirements.AndRequireme
 import com.verdantartifice.verdantcore.common.research.requirements.ResearchRequirement;
 import com.verdantartifice.verdantcore.common.stats.Stat;
 import com.verdantartifice.verdantcore.common.stats.StatsManager;
-import com.verdantartifice.verdantcore.common.util.CodecUtils;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -24,7 +23,6 @@ import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.OptionalInt;
 import java.util.stream.Stream;
 
 /**
@@ -101,7 +99,7 @@ public record ResearchDiscipline(ResearchDisciplineKey key, Optional<AbstractReq
         protected ResourceLocation iconLocation = null;
         protected Optional<Stat> craftingStat = Optional.empty();
         protected Optional<Stat> expertiseStat = Optional.empty();
-        protected OptionalInt indexSortOrder = OptionalInt.empty();
+        protected Optional<Integer> indexSortOrder = Optional.empty();
         
         public Builder(ResearchDisciplineKey key) {
             this.key = Preconditions.checkNotNull(key);
@@ -132,7 +130,7 @@ public record ResearchDiscipline(ResearchDisciplineKey key, Optional<AbstractReq
         }
         
         public Builder indexSortOrder(int order) {
-            this.indexSortOrder = OptionalInt.of(order);
+            this.indexSortOrder = Optional.of(order);
             return this;
         }
         
