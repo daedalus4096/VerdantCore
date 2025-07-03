@@ -2,8 +2,6 @@ package com.verdantartifice.verdantcore.platform;
 
 import com.mojang.logging.LogUtils;
 import com.verdantartifice.verdantcore.platform.services.IAttributeService;
-import com.verdantartifice.verdantcore.platform.services.IBlockEntityPrototypeService;
-import com.verdantartifice.verdantcore.platform.services.IBlockEntityTickerService;
 import com.verdantartifice.verdantcore.platform.services.IBlockPrototypeService;
 import com.verdantartifice.verdantcore.platform.services.IBlockStateService;
 import com.verdantartifice.verdantcore.platform.services.ICapabilityService;
@@ -17,7 +15,6 @@ import com.verdantartifice.verdantcore.platform.services.IIngredientService;
 import com.verdantartifice.verdantcore.platform.services.IInputService;
 import com.verdantartifice.verdantcore.platform.services.IItemAbilityService;
 import com.verdantartifice.verdantcore.platform.services.IItemHandlerService;
-import com.verdantartifice.verdantcore.platform.services.IItemPrototypeService;
 import com.verdantartifice.verdantcore.platform.services.IItemService;
 import com.verdantartifice.verdantcore.platform.services.IItemStackService;
 import com.verdantartifice.verdantcore.platform.services.ILevelService;
@@ -77,10 +74,7 @@ public class ServicesVC {
     public static final ICapabilityService CAPABILITIES = load(ICapabilityService.class);
     public static final IItemAbilityService ITEM_ABILITIES = load(IItemAbilityService.class);
     public static final IEventService EVENTS = load(IEventService.class);
-    public static final IItemPrototypeService ITEM_PROTOTYPES = load(IItemPrototypeService.class);
     public static final IItemHandlerService ITEM_HANDLERS = load(IItemHandlerService.class);
-    public static final IBlockEntityPrototypeService BLOCK_ENTITY_PROTOTYPES = load(IBlockEntityPrototypeService.class);
-    public static final IBlockEntityTickerService BLOCK_ENTITY_TICKERS = load(IBlockEntityTickerService.class);
     public static final IPlayerService PLAYER = load(IPlayerService.class);
     public static final ILevelService LEVEL = load(ILevelService.class);
     public static final IMenuService MENU = load(IMenuService.class);
