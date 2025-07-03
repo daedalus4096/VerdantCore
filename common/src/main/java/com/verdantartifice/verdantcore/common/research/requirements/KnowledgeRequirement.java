@@ -5,7 +5,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.verdantartifice.verdantcore.common.research.KnowledgeType;
 import com.verdantartifice.verdantcore.common.research.ResearchManager;
-import com.verdantartifice.verdantcore.platform.Services;
+import com.verdantartifice.verdantcore.platform.ServicesVC;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -27,10 +27,8 @@ public class KnowledgeRequirement extends AbstractRequirement<KnowledgeRequireme
         ).apply(instance, KnowledgeRequirement::new));
     
     public static final StreamCodec<ByteBuf, KnowledgeRequirement> STREAM_CODEC = StreamCodec.composite(
-            KnowledgeType.STREAM_CODEC,
-            KnowledgeRequirement::getKnowledgeType,
-            ByteBufCodecs.VAR_INT,
-            KnowledgeRequirement::getAmount,
+            KnowledgeType.STREAM_CODEC, KnowledgeRequirement::getKnowledgeType,
+            ByteBufCodecs.VAR_INT, KnowledgeRequirement::getAmount,
             KnowledgeRequirement::new);
     
     protected final KnowledgeType knowledgeType;

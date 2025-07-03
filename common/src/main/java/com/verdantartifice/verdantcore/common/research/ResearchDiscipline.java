@@ -6,7 +6,7 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.verdantartifice.verdantcore.Constants;
 import com.verdantartifice.verdantcore.common.network.PacketHandler;
 import com.verdantartifice.verdantcore.common.network.packets.data.SyncResearchFlagsPacket;
-import com.verdantartifice.verdantcore.common.registries.RegistryKeysPM;
+import com.verdantartifice.verdantcore.common.registries.RegistryKeysVC;
 import com.verdantartifice.verdantcore.common.research.keys.ResearchDisciplineKey;
 import com.verdantartifice.verdantcore.common.research.keys.ResearchEntryKey;
 import com.verdantartifice.verdantcore.common.research.requirements.AbstractRequirement;
@@ -53,7 +53,7 @@ public record ResearchDiscipline(ResearchDisciplineKey key, Optional<AbstractReq
     }
     
     public Stream<ResearchEntry> getEntryStream(RegistryAccess registryAccess) {
-        return registryAccess.registryOrThrow(RegistryKeysPM.RESEARCH_ENTRIES).stream().filter(e -> e.isForDiscipline(this.key));
+        return registryAccess.registryOrThrow(RegistryKeysVC.RESEARCH_ENTRIES).stream().filter(e -> e.isForDiscipline(this.key));
     }
 
     public boolean isUnlocked(Player player) {
@@ -88,7 +88,7 @@ public record ResearchDiscipline(ResearchDisciplineKey key, Optional<AbstractReq
      */
     @Nonnull
     public List<ResearchEntry> getFinaleEntries(RegistryAccess registryAccess) {
-        return registryAccess.registryOrThrow(RegistryKeysPM.RESEARCH_ENTRIES).stream().filter(e -> e.isFinaleFor(this.key.getRootKey())).toList();
+        return registryAccess.registryOrThrow(RegistryKeysVC.RESEARCH_ENTRIES).stream().filter(e -> e.isFinaleFor(this.key.getRootKey())).toList();
     }
     
     public static Builder builder(ResourceKey<ResearchDiscipline> key) {

@@ -1,12 +1,13 @@
 package com.verdantartifice.verdantcore.common.research.requirements;
 
 import com.mojang.serialization.Codec;
-import com.verdantartifice.verdantcore.common.research.ResearchEntries;
+import com.verdantartifice.verdantcore.common.registries.RegistryKeysVC;
 import com.verdantartifice.verdantcore.common.research.ResearchEntry;
 import com.verdantartifice.verdantcore.common.research.ResearchTier;
 import com.verdantartifice.verdantcore.common.research.keys.AbstractResearchKey;
 import com.verdantartifice.verdantcore.common.research.keys.ResearchEntryKey;
-import com.verdantartifice.verdantcore.platform.Services;
+import com.verdantartifice.verdantcore.common.util.RegistryUtils;
+import com.verdantartifice.verdantcore.platform.ServicesVC;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -75,7 +76,7 @@ public abstract class AbstractRequirement<T extends AbstractRequirement<T>> {
         Optional<ResearchTier> retVal = Optional.empty();
         for (AbstractResearchKey<?> rawKey : this.streamKeys().toList()) {
             if (rawKey instanceof ResearchEntryKey entryKey) {
-                ResearchEntry entry = ResearchEntries.getEntry(registryAccess, entryKey);
+                ResearchEntry entry = RegistryUtils.getEntry(RegistryKeysVC.RESEARCH_ENTRIES, entryKey.getRootKey(), registryAccess);
                 if (entry != null) {
                     Optional<ResearchTier> tierOpt = entry.tierOpt();
                     if (retVal.isEmpty() || (tierOpt.isPresent() && tierOpt.get().compareTo(retVal.get()) > 0)) {

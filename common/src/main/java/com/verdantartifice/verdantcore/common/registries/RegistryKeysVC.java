@@ -1,5 +1,10 @@
 package com.verdantartifice.verdantcore.common.registries;
 
+import com.verdantartifice.verdantcore.common.research.ResearchDiscipline;
+import com.verdantartifice.verdantcore.common.research.ResearchEntry;
+import com.verdantartifice.verdantcore.common.research.keys.ResearchKeyType;
+import com.verdantartifice.verdantcore.common.research.requirements.RequirementType;
+import com.verdantartifice.verdantcore.common.research.topics.ResearchTopicType;
 import com.verdantartifice.verdantcore.common.rewards.RewardType;
 import com.verdantartifice.verdantcore.common.util.ResourceUtils;
 import net.minecraft.core.Registry;

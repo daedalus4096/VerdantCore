@@ -2,7 +2,7 @@ package com.verdantartifice.verdantcore.common.research.keys;
 
 import com.mojang.serialization.MapCodec;
 import com.verdantartifice.verdantcore.common.misc.IconDefinition;
-import com.verdantartifice.verdantcore.common.registries.RegistryKeysPM;
+import com.verdantartifice.verdantcore.common.registries.RegistryKeysVC;
 import com.verdantartifice.verdantcore.common.research.ResearchEntry;
 import com.verdantartifice.verdantcore.common.research.requirements.RequirementCategory;
 import com.verdantartifice.verdantcore.common.util.ResourceUtils;
@@ -16,8 +16,8 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.Objects;
 
 public class ResearchEntryKey extends AbstractResearchKey<ResearchEntryKey> {
-    public static final MapCodec<ResearchEntryKey> CODEC = ResourceKey.codec(RegistryKeysPM.RESEARCH_ENTRIES).fieldOf("rootKey").xmap(ResearchEntryKey::new, key -> key.rootKey);
-    public static final StreamCodec<ByteBuf, ResearchEntryKey> STREAM_CODEC = ResourceKey.streamCodec(RegistryKeysPM.RESEARCH_ENTRIES).map(ResearchEntryKey::new, key -> key.rootKey);
+    public static final MapCodec<ResearchEntryKey> CODEC = ResourceKey.codec(RegistryKeysVC.RESEARCH_ENTRIES).fieldOf("rootKey").xmap(ResearchEntryKey::new, key -> key.rootKey);
+    public static final StreamCodec<ByteBuf, ResearchEntryKey> STREAM_CODEC = ResourceKey.streamCodec(RegistryKeysVC.RESEARCH_ENTRIES).map(ResearchEntryKey::new, key -> key.rootKey);
     
     private static final ResourceLocation ICON_UNKNOWN = ResourceUtils.loc("textures/research/research_unknown.png");
 
@@ -48,7 +48,7 @@ public class ResearchEntryKey extends AbstractResearchKey<ResearchEntryKey> {
 
     @Override
     public IconDefinition getIcon(RegistryAccess registryAccess) {
-        return registryAccess.registryOrThrow(RegistryKeysPM.RESEARCH_ENTRIES).getHolder(this.rootKey).flatMap(ref -> ref.value().iconOpt()).orElse(IconDefinition.of(ICON_UNKNOWN));
+        return registryAccess.registryOrThrow(RegistryKeysVC.RESEARCH_ENTRIES).getHolder(this.rootKey).flatMap(ref -> ref.value().iconOpt()).orElse(IconDefinition.of(ICON_UNKNOWN));
     }
 
     @Override

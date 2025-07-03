@@ -5,7 +5,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.verdantartifice.verdantcore.client.util.ClientUtils;
 import com.verdantartifice.verdantcore.common.misc.IconDefinition;
-import com.verdantartifice.verdantcore.platform.Services;
+import com.verdantartifice.verdantcore.platform.ServicesVC;
 import io.netty.buffer.ByteBuf;
 import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -32,12 +32,9 @@ public class VanillaCustomStatRequirement extends AbstractRequirement<VanillaCus
             IconDefinition.CODEC.fieldOf("iconDefinition").forGetter(VanillaCustomStatRequirement::getIconDefinition)
         ).apply(instance, VanillaCustomStatRequirement::new));
     public static final StreamCodec<ByteBuf, VanillaCustomStatRequirement> STREAM_CODEC = StreamCodec.composite(
-            ResourceLocation.STREAM_CODEC,
-            VanillaCustomStatRequirement::getStatValueLoc,
-            ByteBufCodecs.VAR_INT,
-            VanillaCustomStatRequirement::getThreshold,
-            IconDefinition.STREAM_CODEC,
-            VanillaCustomStatRequirement::getIconDefinition,
+            ResourceLocation.STREAM_CODEC, VanillaCustomStatRequirement::getStatValueLoc,
+            ByteBufCodecs.VAR_INT, VanillaCustomStatRequirement::getThreshold,
+            IconDefinition.STREAM_CODEC, VanillaCustomStatRequirement::getIconDefinition,
             VanillaCustomStatRequirement::new);
     
     protected final ResourceLocation statValueLocation;

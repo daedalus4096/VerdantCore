@@ -6,13 +6,13 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.verdantartifice.verdantcore.Constants;
 import com.verdantartifice.verdantcore.common.capabilities.IPlayerKnowledge;
 import com.verdantartifice.verdantcore.common.misc.IconDefinition;
-import com.verdantartifice.verdantcore.common.registries.RegistryKeysPM;
+import com.verdantartifice.verdantcore.common.registries.RegistryKeysVC;
 import com.verdantartifice.verdantcore.common.research.keys.ResearchDisciplineKey;
 import com.verdantartifice.verdantcore.common.research.keys.ResearchEntryKey;
 import com.verdantartifice.verdantcore.common.tags.ResearchEntryTagsPM;
 import com.verdantartifice.verdantcore.common.util.ResourceUtils;
 import com.verdantartifice.verdantcore.common.util.StreamCodecUtils;
-import com.verdantartifice.verdantcore.platform.Services;
+import com.verdantartifice.verdantcore.platform.ServicesVC;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -172,7 +172,7 @@ public record ResearchEntry(ResearchEntryKey key, Optional<ResearchDisciplineKey
     }
     
     public boolean isUpcoming(@Nonnull Player player) {
-        Registry<ResearchEntry> registry = player.level().registryAccess().registryOrThrow(RegistryKeysPM.RESEARCH_ENTRIES);
+        Registry<ResearchEntry> registry = player.level().registryAccess().registryOrThrow(RegistryKeysVC.RESEARCH_ENTRIES);
         return !this.parents.stream().map(k -> registry.getHolder(k.getRootKey())).anyMatch(opt -> {
             return opt.isPresent() && ((opt.get().is(ResearchEntryTagsPM.OPAQUE) && !opt.get().value().key().isKnownBy(player)) || !opt.get().value().isAvailable(player));
         });
@@ -220,7 +220,7 @@ public record ResearchEntry(ResearchEntryKey key, Optional<ResearchDisciplineKey
                     }
                 });
             }
-            registryAccess.registryOrThrow(RegistryKeysPM.RESEARCH_ENTRIES).forEach(searchEntry -> {
+            registryAccess.registryOrThrow(RegistryKeysVC.RESEARCH_ENTRIES).forEach(searchEntry -> {
                 if (!searchEntry.addenda().isEmpty() && knowledge.isResearchComplete(registryAccess, searchEntry.key())) {
                     for (ResearchAddendum addendum : searchEntry.addenda()) {
                         addendum.completionRequirementOpt().ifPresent(req -> {

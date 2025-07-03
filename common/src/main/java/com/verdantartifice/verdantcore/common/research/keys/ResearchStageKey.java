@@ -3,11 +3,11 @@ package com.verdantartifice.verdantcore.common.research.keys;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.verdantartifice.verdantcore.common.misc.IconDefinition;
-import com.verdantartifice.verdantcore.common.registries.RegistryKeysPM;
+import com.verdantartifice.verdantcore.common.registries.RegistryKeysVC;
 import com.verdantartifice.verdantcore.common.research.ResearchEntry;
 import com.verdantartifice.verdantcore.common.research.requirements.RequirementCategory;
 import com.verdantartifice.verdantcore.common.util.ResourceUtils;
-import com.verdantartifice.verdantcore.platform.Services;
+import com.verdantartifice.verdantcore.platform.ServicesVC;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -22,11 +22,11 @@ import java.util.Objects;
 
 public class ResearchStageKey extends AbstractResearchKey<ResearchStageKey> {
     public static final MapCodec<ResearchStageKey> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
-            ResourceKey.codec(RegistryKeysPM.RESEARCH_ENTRIES).fieldOf("rootKey").forGetter(ResearchStageKey::getRootKey), 
+            ResourceKey.codec(RegistryKeysVC.RESEARCH_ENTRIES).fieldOf("rootKey").forGetter(ResearchStageKey::getRootKey), 
             ExtraCodecs.NON_NEGATIVE_INT.fieldOf("stage").forGetter(ResearchStageKey::getStage)
         ).apply(instance, ResearchStageKey::new));
     public static final StreamCodec<ByteBuf, ResearchStageKey> STREAM_CODEC = StreamCodec.composite(
-            ResourceKey.streamCodec(RegistryKeysPM.RESEARCH_ENTRIES),
+            ResourceKey.streamCodec(RegistryKeysVC.RESEARCH_ENTRIES),
             ResearchStageKey::getRootKey,
             ByteBufCodecs.VAR_INT,
             ResearchStageKey::getStage,
@@ -69,7 +69,7 @@ public class ResearchStageKey extends AbstractResearchKey<ResearchStageKey> {
 
     @Override
     public IconDefinition getIcon(RegistryAccess registryAccess) {
-        return registryAccess.registryOrThrow(RegistryKeysPM.RESEARCH_ENTRIES).getHolder(this.rootKey).flatMap(ref -> ref.value().iconOpt()).orElse(IconDefinition.of(ICON_UNKNOWN));
+        return registryAccess.registryOrThrow(RegistryKeysVC.RESEARCH_ENTRIES).getHolder(this.rootKey).flatMap(ref -> ref.value().iconOpt()).orElse(IconDefinition.of(ICON_UNKNOWN));
     }
 
     @Override

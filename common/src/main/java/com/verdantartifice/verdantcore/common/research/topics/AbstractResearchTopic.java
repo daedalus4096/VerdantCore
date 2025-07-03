@@ -1,7 +1,7 @@
 package com.verdantartifice.verdantcore.common.research.topics;
 
 import com.mojang.serialization.Codec;
-import com.verdantartifice.verdantcore.platform.Services;
+import com.verdantartifice.verdantcore.platform.ServicesVC;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.StreamCodec;

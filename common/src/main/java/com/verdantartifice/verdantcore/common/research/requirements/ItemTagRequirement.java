@@ -28,10 +28,8 @@ public class ItemTagRequirement extends AbstractRequirement<ItemTagRequirement> 
             ExtraCodecs.POSITIVE_INT.fieldOf("amount").forGetter(req -> req.amount)
         ).apply(instance, ItemTagRequirement::new));
     public static final StreamCodec<ByteBuf, ItemTagRequirement> STREAM_CODEC = StreamCodec.composite(
-            StreamCodecUtils.tagKey(Registries.ITEM),
-            ItemTagRequirement::getTag,
-            ByteBufCodecs.VAR_INT,
-            ItemTagRequirement::getAmount,
+            StreamCodecUtils.tagKey(Registries.ITEM), ItemTagRequirement::getTag,
+            ByteBufCodecs.VAR_INT, ItemTagRequirement::getAmount,
             ItemTagRequirement::new);
     
     protected final TagKey<Item> tag;

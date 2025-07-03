@@ -5,7 +5,7 @@ import com.mojang.serialization.MapCodec;
 import com.verdantartifice.verdantcore.common.research.ResearchManager;
 import com.verdantartifice.verdantcore.common.research.keys.AbstractResearchKey;
 import com.verdantartifice.verdantcore.common.research.keys.ResearchEntryKey;
-import com.verdantartifice.verdantcore.platform.Services;
+import com.verdantartifice.verdantcore.platform.ServicesVC;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
@@ -52,9 +52,7 @@ public class ResearchRequirement extends AbstractRequirement<ResearchRequirement
         if (this.rootKey instanceof ResearchEntryKey entryKey) {
             return ResearchManager.completeResearch(player, entryKey, true, true, false);
         } else {
-            ServicesVC.CAPABILITIES.knowledge(player).ifPresent(k -> {
-                k.addResearch(this.rootKey);
-            });
+            ServicesVC.CAPABILITIES.knowledge(player).ifPresent(k -> k.addResearch(this.rootKey));
             return true;
         }
     }

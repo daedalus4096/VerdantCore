@@ -21,7 +21,6 @@ import com.verdantartifice.verdantcore.common.sources.Source;
 import com.verdantartifice.verdantcore.common.sources.SourceList;
 import com.verdantartifice.verdantcore.common.stats.Stat;
 import com.verdantartifice.verdantcore.common.util.ResourceUtils;
-import com.verdantartifice.verdantcore.platform.Services;
 import com.verdantartifice.verdantcore.platform.ServicesVC;
 import net.minecraft.core.Holder;
 import net.minecraft.network.RegistryFriendlyByteBuf;

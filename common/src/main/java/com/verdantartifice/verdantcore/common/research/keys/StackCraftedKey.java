@@ -4,7 +4,7 @@ import com.mojang.serialization.MapCodec;
 import com.verdantartifice.verdantcore.common.misc.IconDefinition;
 import com.verdantartifice.verdantcore.common.research.ResearchManager;
 import com.verdantartifice.verdantcore.common.research.requirements.RequirementCategory;
-import com.verdantartifice.verdantcore.platform.Services;
+import com.verdantartifice.verdantcore.platform.ServicesVC;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
