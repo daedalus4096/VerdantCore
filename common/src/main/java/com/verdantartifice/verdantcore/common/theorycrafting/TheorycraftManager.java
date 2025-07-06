@@ -22,7 +22,6 @@ import java.util.stream.Collectors;
  * @author Daedalus4096
  */
 public class TheorycraftManager {
-    @SuppressWarnings("deprecation")
     @Nonnull
     public static Project createRandomProject(@Nonnull ServerPlayer player, @Nonnull BlockPos tablePos) {
         WeightedRandomBag<ProjectTemplate> templateBag = new WeightedRandomBag<>();
@@ -69,7 +68,6 @@ public class TheorycraftManager {
         return getSurroundingsInner(level, pos, b -> true);
     }
     
-    @SuppressWarnings("deprecation")
     @Nonnull
     protected static Set<Block> getSurroundingsInner(Level level, BlockPos pos, Predicate<Block> filter) {
         Set<Block> retVal = new HashSet<>();

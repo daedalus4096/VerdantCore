@@ -45,6 +45,7 @@ import com.verdantartifice.verdantcore.platform.services.registries.IMemoryModul
 import com.verdantartifice.verdantcore.platform.services.registries.IMenuTypeRegistryService;
 import com.verdantartifice.verdantcore.platform.services.registries.IMobEffectRegistryService;
 import com.verdantartifice.verdantcore.platform.services.registries.IParticleTypeRegistryService;
+import com.verdantartifice.verdantcore.platform.services.registries.IProjectMaterialTypeRegistryService;
 import com.verdantartifice.verdantcore.platform.services.registries.IRecipeSerializerRegistryService;
 import com.verdantartifice.verdantcore.platform.services.registries.IRecipeTypeRegistryService;
 import com.verdantartifice.verdantcore.platform.services.registries.IRequirementTypeRegistryService;
@@ -55,6 +56,7 @@ import com.verdantartifice.verdantcore.platform.services.registries.ISensorTypeR
 import com.verdantartifice.verdantcore.platform.services.registries.ISoundEventRegistryService;
 import com.verdantartifice.verdantcore.platform.services.registries.IStructurePieceTypeRegistryService;
 import com.verdantartifice.verdantcore.platform.services.registries.IStructureTypeRegistryService;
+import com.verdantartifice.verdantcore.platform.services.registries.IWeightFunctionTypeRegistryService;
 import org.slf4j.Logger;
 
 import java.util.ServiceLoader;
@@ -124,6 +126,8 @@ public class ServicesVC {
     public static final IRequirementTypeRegistryService REQUIREMENT_TYPES_REGISTRY = load(IRequirementTypeRegistryService.class);
     public static final IRewardTypeRegistryService REWARD_TYPES_REGISTRY = load(IRewardTypeRegistryService.class);
     public static final IResearchTopicTypeRegistryService RESEARCH_TOPIC_TYPES_REGISTRY = load(IResearchTopicTypeRegistryService.class);
+    public static final IProjectMaterialTypeRegistryService PROJECT_MATERIAL_TYPES_REGISTRY = load(IProjectMaterialTypeRegistryService.class);
+    public static final IWeightFunctionTypeRegistryService WEIGHT_FUNCTION_TYPES_REGISTRY = load(IWeightFunctionTypeRegistryService.class);
 
     // This code is used to load a service for the current environment. Your implementation of the service must be defined
     // manually by including a text file in META-INF/services named with the fully qualified class name of the service.
