@@ -3,7 +3,7 @@ package com.verdantartifice.verdantcore.common.theorycrafting;
 import com.verdantartifice.verdantcore.common.util.WeightedRandomBag;
 import com.verdantartifice.verdantcore.platform.ServicesVC;
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.RegistryAccess;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.level.Level;
@@ -23,9 +23,9 @@ import java.util.stream.Collectors;
  */
 public class TheorycraftManager {
     @Nonnull
-    public static Project createRandomProject(@Nonnull ServerPlayer player, @Nonnull BlockPos tablePos) {
+    public static Project createRandomProject(@Nonnull Registry<ProjectTemplate> templateRegistry, @Nonnull ServerPlayer player, @Nonnull BlockPos tablePos) {
         WeightedRandomBag<ProjectTemplate> templateBag = new WeightedRandomBag<>();
-        ProjectTemplates.stream(player.level().registryAccess()).forEach(template -> templateBag.add(template, template.getWeight(player)));
+        templateRegistry.stream().forEach(template -> templateBag.add(template, template.getWeight(player)));
         
         // Determine what blocks are nearby so that aid blocks can be checked
         Set<Block> nearby = new HashSet<>();
@@ -53,13 +53,13 @@ public class TheorycraftManager {
     }
     
     @Nonnull
-    protected static Set<ResourceLocation> getAllAidBlockIds(RegistryAccess registryAccess) {
-        return ProjectTemplates.stream(registryAccess).flatMap(t -> t.aidBlocks().stream()).filter(Objects::nonNull).collect(Collectors.toSet());
+    protected static Set<ResourceLocation> getAllAidBlockIds(@Nonnull Registry<ProjectTemplate> templateRegistry) {
+        return templateRegistry.stream().flatMap(t -> t.aidBlocks().stream()).filter(Objects::nonNull).collect(Collectors.toSet());
     }
     
     @Nonnull
-    public static Set<Block> getNearbyAidBlocks(Level level, BlockPos pos) {
-        Set<ResourceLocation> allAids = getAllAidBlockIds(level.registryAccess());
+    public static Set<Block> getNearbyAidBlocks(@Nonnull Registry<ProjectTemplate> templateRegistry, Level level, BlockPos pos) {
+        Set<ResourceLocation> allAids = getAllAidBlockIds(templateRegistry);
         return getSurroundingsInner(level, pos, b -> allAids.contains(ServicesVC.BLOCKS_REGISTRY.getKey(b)));
     }
     

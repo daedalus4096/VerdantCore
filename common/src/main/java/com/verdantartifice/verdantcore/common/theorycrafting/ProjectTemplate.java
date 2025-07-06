@@ -15,6 +15,7 @@ import com.verdantartifice.verdantcore.common.stats.StatsManager;
 import com.verdantartifice.verdantcore.common.theorycrafting.materials.AbstractProjectMaterial;
 import com.verdantartifice.verdantcore.common.theorycrafting.weights.AbstractWeightFunction;
 import com.verdantartifice.verdantcore.common.util.StreamCodecUtils;
+import com.verdantartifice.verdantcore.common.util.WeightedRandomBag;
 import com.verdantartifice.verdantcore.platform.ServicesVC;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.RegistryFriendlyByteBuf;
