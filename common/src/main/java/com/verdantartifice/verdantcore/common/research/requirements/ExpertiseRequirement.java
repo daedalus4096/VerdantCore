@@ -8,6 +8,7 @@ import com.verdantartifice.verdantcore.common.research.ResearchTier;
 import com.verdantartifice.verdantcore.common.research.keys.ResearchDisciplineKey;
 import com.verdantartifice.verdantcore.common.stats.ExpertiseManager;
 import io.netty.buffer.ByteBuf;
+import net.minecraft.core.Registry;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
@@ -23,29 +24,24 @@ import java.util.stream.Stream;
  * calculated dynamically instead of being statically defined at creation.  For most disciplines,
  * the threshold is calculated based on the granted expertise of that discipline's associated
  * recipes, with a goal that increasing a tier requires roughly one craft of each discipline
- * recipe.  Sorcery, as it has few to no associated recipes, is instead based on the mana cost
- * of spells cast; because this cannot be calculated ahead of time, sorcery requirements must
- * have a threshold override specified.
+ * recipe.  For the remainder, a threshold override may be specified.
  * 
  * @author Daedalus4096
  */
 public class ExpertiseRequirement extends AbstractRequirement<ExpertiseRequirement> {
-    public static MapCodec<ExpertiseRequirement> codec() {
+    public static MapCodec<ExpertiseRequirement> codec(ResourceKey<Registry<ResearchDiscipline>> disciplineRegistryKey) {
         return RecordCodecBuilder.mapCodec(instance -> instance.group(
-                ResearchDisciplineKey.CODEC.fieldOf("discipline").forGetter(ExpertiseRequirement::getDiscipline),
+                ResearchDisciplineKey.codec(disciplineRegistryKey).fieldOf("discipline").forGetter(ExpertiseRequirement::getDiscipline),
                 ResearchTier.CODEC.fieldOf("tier").forGetter(ExpertiseRequirement::getTier),
                 Codec.INT.optionalFieldOf("thresholdOverride").forGetter(r -> r.thresholdOverrideOpt)
             ).apply(instance, ExpertiseRequirement::new));
     }
     
-    public static StreamCodec<ByteBuf, ExpertiseRequirement> streamCodec() {
+    public static StreamCodec<ByteBuf, ExpertiseRequirement> streamCodec(ResourceKey<Registry<ResearchDiscipline>> disciplineRegistryKey) {
         return StreamCodec.composite(
-                ResearchDisciplineKey.STREAM_CODEC,
-                ExpertiseRequirement::getDiscipline,
-                ResearchTier.STREAM_CODEC,
-                ExpertiseRequirement::getTier,
-                ByteBufCodecs.optional(ByteBufCodecs.VAR_INT),
-                req -> req.thresholdOverrideOpt,
+                ResearchDisciplineKey.streamCodec(disciplineRegistryKey), ExpertiseRequirement::getDiscipline,
+                ResearchTier.STREAM_CODEC, ExpertiseRequirement::getTier,
+                ByteBufCodecs.optional(ByteBufCodecs.VAR_INT), req -> req.thresholdOverrideOpt,
                 ExpertiseRequirement::new);
     }
     
@@ -60,12 +56,12 @@ public class ExpertiseRequirement extends AbstractRequirement<ExpertiseRequireme
         this.thresholdOverrideOpt = thresholdOverrideOpt;
     }
     
-    public ExpertiseRequirement(ResourceKey<ResearchDiscipline> discipline, ResearchTier tier) {
-        this(new ResearchDisciplineKey(discipline), tier, Optional.empty());
+    public ExpertiseRequirement(ResourceKey<Registry<ResearchDiscipline>> registryKey, ResourceKey<ResearchDiscipline> discipline, ResearchTier tier) {
+        this(new ResearchDisciplineKey(registryKey, discipline), tier, Optional.empty());
     }
     
-    public ExpertiseRequirement(ResourceKey<ResearchDiscipline> discipline, ResearchTier tier, int thresholdOverride) {
-        this(new ResearchDisciplineKey(discipline), tier, Optional.of(thresholdOverride));
+    public ExpertiseRequirement(ResourceKey<Registry<ResearchDiscipline>> registryKey, ResourceKey<ResearchDiscipline> discipline, ResearchTier tier, int thresholdOverride) {
+        this(new ResearchDisciplineKey(registryKey, discipline), tier, Optional.of(thresholdOverride));
     }
     
     public ResearchDisciplineKey getDiscipline() {

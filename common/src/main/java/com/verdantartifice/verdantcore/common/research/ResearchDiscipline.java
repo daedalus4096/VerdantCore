@@ -6,7 +6,6 @@ import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.verdantartifice.verdantcore.Constants;
 import com.verdantartifice.verdantcore.common.network.PacketHandler;
 import com.verdantartifice.verdantcore.common.network.packets.data.SyncResearchFlagsPacket;
-import com.verdantartifice.verdantcore.common.registries.RegistryKeysVC;
 import com.verdantartifice.verdantcore.common.research.keys.ResearchDisciplineKey;
 import com.verdantartifice.verdantcore.common.research.keys.ResearchEntryKey;
 import com.verdantartifice.verdantcore.common.research.requirements.AbstractRequirement;
@@ -14,6 +13,7 @@ import com.verdantartifice.verdantcore.common.research.requirements.AndRequireme
 import com.verdantartifice.verdantcore.common.research.requirements.ResearchRequirement;
 import com.verdantartifice.verdantcore.common.stats.Stat;
 import com.verdantartifice.verdantcore.common.stats.StatsManager;
+import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -34,9 +34,9 @@ import java.util.stream.Stream;
  */
 public record ResearchDiscipline(ResearchDisciplineKey key, Optional<AbstractRequirement<?>> unlockRequirementOpt, ResourceLocation iconLocation, Optional<Stat> craftingStat, 
         Optional<Stat> expertiseStat, Optional<Integer> indexSortOrder) {
-    public static Codec<ResearchDiscipline> codec() {
+    public static Codec<ResearchDiscipline> codec(ResourceKey<Registry<ResearchDiscipline>> disciplineRegistryKey) {
         return RecordCodecBuilder.create(instance -> instance.group(
-                ResearchDisciplineKey.CODEC.fieldOf("key").forGetter(ResearchDiscipline::key),
+                ResearchDisciplineKey.codec(disciplineRegistryKey).fieldOf("key").forGetter(ResearchDiscipline::key),
                 AbstractRequirement.dispatchCodec().optionalFieldOf("unlockRequirementOpt").forGetter(ResearchDiscipline::unlockRequirementOpt),
                 ResourceLocation.CODEC.fieldOf("iconLocation").forGetter(ResearchDiscipline::iconLocation),
                 ResourceLocation.CODEC.optionalFieldOf("craftingStat").xmap(locOpt -> locOpt.map(StatsManager::getStat), statOpt -> statOpt.map(Stat::key)).forGetter(ResearchDiscipline::craftingStat),
@@ -50,28 +50,28 @@ public record ResearchDiscipline(ResearchDisciplineKey key, Optional<AbstractReq
         return String.join(".", "research_discipline", Constants.MOD_ID, this.key.getRootKey().location().getPath());
     }
     
-    public Stream<ResearchEntry> getEntryStream(RegistryAccess registryAccess) {
-        return registryAccess.registryOrThrow(RegistryKeysVC.RESEARCH_ENTRIES).stream().filter(e -> e.isForDiscipline(this.key));
+    public Stream<ResearchEntry> getEntryStream(RegistryAccess registryAccess, ResourceKey<Registry<ResearchEntry>> registryKey) {
+        return registryAccess.registryOrThrow(registryKey).stream().filter(e -> e.isForDiscipline(this.key));
     }
 
-    public boolean isUnlocked(Player player) {
+    public boolean isUnlocked(Player player, ResourceKey<Registry<ResearchEntry>> registryKey) {
         return this.unlockRequirementOpt().map(req -> req.isMetBy(player)).orElse(true);
     }
 
-    public boolean isHighlighted(Player player) {
-        return this.getEntryStream(player.level().registryAccess()).anyMatch(entry -> entry.isHighlighted(player));
+    public boolean isHighlighted(Player player, ResourceKey<Registry<ResearchEntry>> registryKey) {
+        return this.getEntryStream(player.level().registryAccess(), registryKey).anyMatch(entry -> entry.isHighlighted(player));
     }
 
-    public boolean isUnread(Player player) {
-        return this.getEntryStream(player.level().registryAccess()).anyMatch(entry -> entry.isUnread(player));
+    public boolean isUnread(Player player, ResourceKey<Registry<ResearchEntry>> registryKey) {
+        return this.getEntryStream(player.level().registryAccess(), registryKey).anyMatch(entry -> entry.isUnread(player));
     }
 
-    public int getUnreadEntryCount(Player player) {
-        return this.getEntryStream(player.registryAccess()).mapToInt(e -> e.isUnread(player) ? 1 : 0).sum();
+    public int getUnreadEntryCount(Player player, ResourceKey<Registry<ResearchEntry>> registryKey) {
+        return this.getEntryStream(player.registryAccess(), registryKey).mapToInt(e -> e.isUnread(player) ? 1 : 0).sum();
     }
 
-    public void markAllAsRead(Player player) {
-        this.getEntryStream(player.registryAccess()).filter(e -> e.isUnread(player)).forEach(e -> {
+    public void markAllAsRead(Player player, ResourceKey<Registry<ResearchEntry>> registryKey) {
+        this.getEntryStream(player.registryAccess(), registryKey).filter(e -> e.isUnread(player)).forEach(e -> {
             e.markRead(player);
             if (player.level().isClientSide()) {
                 PacketHandler.sendToServer(new SyncResearchFlagsPacket(player, e.key()));
@@ -85,12 +85,12 @@ public record ResearchDiscipline(ResearchDisciplineKey key, Optional<AbstractReq
      * @return finale research entries for this discipline
      */
     @Nonnull
-    public List<ResearchEntry> getFinaleEntries(RegistryAccess registryAccess) {
-        return registryAccess.registryOrThrow(RegistryKeysVC.RESEARCH_ENTRIES).stream().filter(e -> e.isFinaleFor(this.key.getRootKey())).toList();
+    public List<ResearchEntry> getFinaleEntries(RegistryAccess registryAccess, ResourceKey<Registry<ResearchEntry>> registryKey) {
+        return registryAccess.registryOrThrow(registryKey).stream().filter(e -> e.isFinaleFor(this.key)).toList();
     }
     
-    public static Builder builder(ResourceKey<ResearchDiscipline> key) {
-        return new Builder(new ResearchDisciplineKey(key));
+    public static Builder builder(ResourceKey<Registry<ResearchDiscipline>> registryKey, ResourceKey<ResearchDiscipline> key) {
+        return new Builder(new ResearchDisciplineKey(registryKey, key));
     }
 
     public static class Builder {
@@ -110,8 +110,8 @@ public record ResearchDiscipline(ResearchDisciplineKey key, Optional<AbstractReq
             return this;
         }
         
-        public Builder unlock(ResourceKey<ResearchEntry> requiredResearchEntry) {
-            return this.unlock(new ResearchRequirement(new ResearchEntryKey(requiredResearchEntry)));
+        public Builder unlock(ResourceKey<Registry<ResearchEntry>> registryKey, ResourceKey<ResearchEntry> requiredResearchEntry) {
+            return this.unlock(new ResearchRequirement(new ResearchEntryKey(registryKey, requiredResearchEntry)));
         }
         
         public Builder icon(ResourceLocation iconLocation) {

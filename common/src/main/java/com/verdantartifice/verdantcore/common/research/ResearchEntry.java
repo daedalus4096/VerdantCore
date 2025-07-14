@@ -3,10 +3,8 @@ package com.verdantartifice.verdantcore.common.research;
 import com.google.common.base.Preconditions;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.verdantartifice.verdantcore.Constants;
 import com.verdantartifice.verdantcore.common.capabilities.IPlayerKnowledge;
 import com.verdantartifice.verdantcore.common.misc.IconDefinition;
-import com.verdantartifice.verdantcore.common.registries.RegistryKeysVC;
 import com.verdantartifice.verdantcore.common.research.keys.ResearchDisciplineKey;
 import com.verdantartifice.verdantcore.common.research.keys.ResearchEntryKey;
 import com.verdantartifice.verdantcore.common.tags.ResearchEntryTagsPM;
@@ -46,38 +44,38 @@ import java.util.stream.Stream;
 public record ResearchEntry(ResearchEntryKey key, Optional<ResearchDisciplineKey> disciplineKeyOpt, Optional<ResearchTier> tierOpt,
                             Optional<String> nameKeyOpt, Optional<IconDefinition> iconOpt, List<ResearchEntryKey> parents, Flags flags,
                             List<ResearchDisciplineKey> finales, List<ResearchStage> stages, List<ResearchAddendum> addenda) {
-    public static Codec<ResearchEntry> codec() {
+    public static Codec<ResearchEntry> codec(ResourceKey<Registry<ResearchDiscipline>> disciplineRegistryKey, ResourceKey<Registry<ResearchEntry>> entryRegistryKey) {
         return RecordCodecBuilder.create(instance -> instance.group(
-                ResearchEntryKey.CODEC.fieldOf("key").forGetter(ResearchEntry::key),
-                ResearchDisciplineKey.CODEC.codec().optionalFieldOf("disciplineKey").forGetter(ResearchEntry::disciplineKeyOpt),
+                ResearchEntryKey.codec(entryRegistryKey).fieldOf("key").forGetter(ResearchEntry::key),
+                ResearchDisciplineKey.codec(disciplineRegistryKey).codec().optionalFieldOf("disciplineKey").forGetter(ResearchEntry::disciplineKeyOpt),
                 ResearchTier.CODEC.optionalFieldOf("tier").forGetter(ResearchEntry::tierOpt),
                 Codec.STRING.optionalFieldOf("nameKey").forGetter(ResearchEntry::nameKeyOpt),
                 IconDefinition.CODEC.optionalFieldOf("icon").forGetter(ResearchEntry::iconOpt),
-                ResearchEntryKey.CODEC.codec().listOf().fieldOf("parents").forGetter(ResearchEntry::parents),
+                ResearchEntryKey.codec(entryRegistryKey).codec().listOf().fieldOf("parents").forGetter(ResearchEntry::parents),
                 Flags.CODEC.fieldOf("flags").forGetter(ResearchEntry::flags),
-                ResearchDisciplineKey.CODEC.codec().listOf().fieldOf("finales").forGetter(ResearchEntry::finales),
+                ResearchDisciplineKey.codec(disciplineRegistryKey).codec().listOf().fieldOf("finales").forGetter(ResearchEntry::finales),
                 ResearchStage.codec().listOf().fieldOf("stages").forGetter(ResearchEntry::stages),
                 ResearchAddendum.codec().listOf().fieldOf("addenda").forGetter(ResearchEntry::addenda)
             ).apply(instance, ResearchEntry::new));
     }
     
-    public static StreamCodec<RegistryFriendlyByteBuf, ResearchEntry> streamCodec() {
+    public static StreamCodec<RegistryFriendlyByteBuf, ResearchEntry> streamCodec(ResourceKey<Registry<ResearchDiscipline>> disciplineRegistryKey, ResourceKey<Registry<ResearchEntry>> entryRegistryKey) {
         return StreamCodecUtils.composite(
-                ResearchEntryKey.STREAM_CODEC, ResearchEntry::key,
-                ByteBufCodecs.optional(ResearchDisciplineKey.STREAM_CODEC), ResearchEntry::disciplineKeyOpt,
+                ResearchEntryKey.streamCodec(entryRegistryKey), ResearchEntry::key,
+                ByteBufCodecs.optional(ResearchDisciplineKey.streamCodec(disciplineRegistryKey)), ResearchEntry::disciplineKeyOpt,
                 ByteBufCodecs.optional(ResearchTier.STREAM_CODEC), ResearchEntry::tierOpt,
                 ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8), ResearchEntry::nameKeyOpt,
                 ByteBufCodecs.optional(IconDefinition.STREAM_CODEC), ResearchEntry::iconOpt,
-                ResearchEntryKey.STREAM_CODEC.apply(ByteBufCodecs.list()), ResearchEntry::parents,
+                ResearchEntryKey.streamCodec(entryRegistryKey).apply(ByteBufCodecs.list()), ResearchEntry::parents,
                 Flags.STREAM_CODEC, ResearchEntry::flags,
-                ResearchDisciplineKey.STREAM_CODEC.apply(ByteBufCodecs.list()), ResearchEntry::finales,
+                ResearchDisciplineKey.streamCodec(disciplineRegistryKey).apply(ByteBufCodecs.list()), ResearchEntry::finales,
                 ResearchStage.streamCodec().apply(ByteBufCodecs.list()), ResearchEntry::stages,
                 ResearchAddendum.streamCodec().apply(ByteBufCodecs.list()), ResearchEntry::addenda,
                 ResearchEntry::new);
     }
     
-    public static Builder builder(ResourceKey<ResearchEntry> key) {
-        return new Builder(key);
+    public static Builder builder(String modId, ResourceKey<Registry<ResearchEntry>> registryKey, ResourceKey<ResearchEntry> key) {
+        return new Builder(modId, registryKey, key);
     }
     
     public String getBaseTranslationKey() {
@@ -116,8 +114,8 @@ public record ResearchEntry(ResearchEntryKey key, Optional<ResearchDisciplineKey
      * @param discipline the discipline to be tested
      * @return whether this research is a finale for the given discipline key
      */
-    public boolean isFinaleFor(ResourceKey<ResearchDiscipline> discipline) {
-        return this.isFinaleFor(new ResearchDisciplineKey(discipline));
+    public boolean isFinaleFor(ResourceKey<Registry<ResearchDiscipline>> registryKey, ResourceKey<ResearchDiscipline> discipline) {
+        return this.isFinaleFor(new ResearchDisciplineKey(registryKey, discipline));
     }
     
     private IPlayerKnowledge getKnowledge(@Nonnull Player player) {
@@ -171,15 +169,15 @@ public record ResearchEntry(ResearchEntryKey key, Optional<ResearchDisciplineKey
         return this.parents.isEmpty() || this.parents.stream().allMatch(key -> key.isKnownBy(player));
     }
     
-    public boolean isUpcoming(@Nonnull Player player) {
-        Registry<ResearchEntry> registry = player.level().registryAccess().registryOrThrow(RegistryKeysVC.RESEARCH_ENTRIES);
+    public boolean isUpcoming(@Nonnull Player player, @Nonnull ResourceKey<Registry<ResearchEntry>> registryKey) {
+        Registry<ResearchEntry> registry = player.level().registryAccess().registryOrThrow(registryKey);
         return !this.parents.stream().map(k -> registry.getHolder(k.getRootKey())).anyMatch(opt -> {
             return opt.isPresent() && ((opt.get().is(ResearchEntryTagsPM.OPAQUE) && !opt.get().value().key().isKnownBy(player)) || !opt.get().value().isAvailable(player));
         });
     }
 
-    public boolean isVisible(@Nonnull Player player) {
-        return this.isAvailable(player) || this.isUpcoming(player);
+    public boolean isVisible(@Nonnull Player player, @Nonnull ResourceKey<Registry<ResearchEntry>> registryKey) {
+        return this.isAvailable(player) || this.isUpcoming(player, registryKey);
     }
 
     public boolean isUnknown(@Nonnull Player player) {
@@ -192,7 +190,7 @@ public record ResearchEntry(ResearchEntryKey key, Optional<ResearchDisciplineKey
     }
     
     @Nonnull
-    public Set<ResourceLocation> getKnownRecipeIds(Player player) {
+    public Set<ResourceLocation> getKnownRecipeIds(@Nonnull Player player, @Nonnull ResourceKey<Registry<ResearchEntry>> registryKey) {
         Set<ResourceLocation> retVal = new HashSet<>();
         if (this.stages().isEmpty()) {
             // If this research entry has no stages, then it can't have any recipes, so just abort
@@ -220,7 +218,7 @@ public record ResearchEntry(ResearchEntryKey key, Optional<ResearchDisciplineKey
                     }
                 });
             }
-            registryAccess.registryOrThrow(RegistryKeysVC.RESEARCH_ENTRIES).forEach(searchEntry -> {
+            registryAccess.registryOrThrow(registryKey).forEach(searchEntry -> {
                 if (!searchEntry.addenda().isEmpty() && knowledge.isResearchComplete(registryAccess, searchEntry.key())) {
                     for (ResearchAddendum addendum : searchEntry.addenda()) {
                         addendum.completionRequirementOpt().ifPresent(req -> {
@@ -236,7 +234,7 @@ public record ResearchEntry(ResearchEntryKey key, Optional<ResearchDisciplineKey
         return retVal;
     }
     
-    public static record Flags(boolean hidden, boolean hasHint, boolean internal, boolean finaleExempt) {
+    public record Flags(boolean hidden, boolean hasHint, boolean internal, boolean finaleExempt) {
         public static final Flags EMPTY = new Flags(false, false, false, false);
         
         public static final Codec<Flags> CODEC = RecordCodecBuilder.create(instance -> instance.group(
@@ -311,20 +309,12 @@ public record ResearchEntry(ResearchEntryKey key, Optional<ResearchDisciplineKey
             this.key = Preconditions.checkNotNull(key);
         }
         
-        public Builder(String modId, ResourceKey<ResearchEntry> rawKey) {
-            this(modId, new ResearchEntryKey(rawKey));
+        public Builder(String modId, ResourceKey<Registry<ResearchEntry>> registryKey, ResourceKey<ResearchEntry> rawKey) {
+            this(modId, new ResearchEntryKey(registryKey, rawKey));
         }
         
-        public Builder(ResearchEntryKey key) {
-            this(Constants.MOD_ID, key);
-        }
-        
-        public Builder(ResourceKey<ResearchEntry> rawKey) {
-            this(new ResearchEntryKey(rawKey));
-        }
-        
-        public Builder discipline(ResourceKey<ResearchDiscipline> discKey) {
-            this.disciplineKeyOpt = Optional.of(new ResearchDisciplineKey(discKey));
+        public Builder discipline(ResourceKey<Registry<ResearchDiscipline>> registryKey, ResourceKey<ResearchDiscipline> discKey) {
+            this.disciplineKeyOpt = Optional.of(new ResearchDisciplineKey(registryKey, discKey));
             return this;
         }
         
@@ -357,8 +347,8 @@ public record ResearchEntry(ResearchEntryKey key, Optional<ResearchDisciplineKey
             return this;
         }
         
-        public Builder parent(ResourceKey<ResearchEntry> rawKey) {
-            return this.parent(new ResearchEntryKey(rawKey));
+        public Builder parent(ResourceKey<Registry<ResearchEntry>> registryKey, ResourceKey<ResearchEntry> rawKey) {
+            return this.parent(new ResearchEntryKey(registryKey, rawKey));
         }
         
         public Builder flags(Flags.Builder flagsBuilder) {
@@ -366,8 +356,8 @@ public record ResearchEntry(ResearchEntryKey key, Optional<ResearchDisciplineKey
             return this;
         }
         
-        public Builder finale(ResourceKey<ResearchDiscipline> discKey) {
-            this.finales.add(new ResearchDisciplineKey(discKey));
+        public Builder finale(ResourceKey<Registry<ResearchDiscipline>> registryKey, ResourceKey<ResearchDiscipline> discKey) {
+            this.finales.add(new ResearchDisciplineKey(registryKey, discKey));
             return this;
         }
         
@@ -396,7 +386,7 @@ public record ResearchEntry(ResearchEntryKey key, Optional<ResearchDisciplineKey
         public ResearchEntry build() {
             this.validate();
             return new ResearchEntry(this.key, this.disciplineKeyOpt, this.tierOpt, this.nameKeyOpt, this.iconOpt, this.parents, this.flagsBuilder.build(), this.finales,
-                    this.stageBuilders.stream().map(b -> b.build()).toList(), this.addendumBuilders.stream().map(b -> b.build()).toList());
+                    this.stageBuilders.stream().map(ResearchStage.Builder::build).toList(), this.addendumBuilders.stream().map(ResearchAddendum.Builder::build).toList());
         }
     }
 }

@@ -2,12 +2,12 @@ package com.verdantartifice.verdantcore.common.research.keys;
 
 import com.mojang.serialization.MapCodec;
 import com.verdantartifice.verdantcore.common.misc.IconDefinition;
-import com.verdantartifice.verdantcore.common.registries.RegistryKeysVC;
 import com.verdantartifice.verdantcore.common.research.ResearchDiscipline;
 import com.verdantartifice.verdantcore.common.research.requirements.RequirementCategory;
 import com.verdantartifice.verdantcore.common.util.ResourceUtils;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Holder;
+import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
@@ -20,15 +20,28 @@ import javax.annotation.Nonnull;
 import java.util.Objects;
 
 public class ResearchDisciplineKey extends AbstractResearchKey<ResearchDisciplineKey> {
-    public static final MapCodec<ResearchDisciplineKey> CODEC = ResourceKey.codec(RegistryKeysVC.RESEARCH_DISCIPLINES).fieldOf("rootKey").xmap(ResearchDisciplineKey::new, key -> key.rootKey);
-    public static final StreamCodec<ByteBuf, ResearchDisciplineKey> STREAM_CODEC = ResourceKey.streamCodec(RegistryKeysVC.RESEARCH_DISCIPLINES).map(ResearchDisciplineKey::new, key -> key.rootKey);
+    public static MapCodec<ResearchDisciplineKey> codec(ResourceKey<Registry<ResearchDiscipline>> registryKey) {
+        return ResourceKey.codec(registryKey).fieldOf("rootKey").xmap(
+                rootKey -> new ResearchDisciplineKey(registryKey, rootKey), key -> key.rootKey);
+    }
+
+    public static StreamCodec<ByteBuf, ResearchDisciplineKey> streamCodec(ResourceKey<Registry<ResearchDiscipline>> registryKey) {
+        return ResourceKey.streamCodec(registryKey).map(
+                rootKey -> new ResearchDisciplineKey(registryKey, rootKey), key -> key.rootKey);
+    }
     
     private static final ResourceLocation ICON_UNKNOWN = ResourceUtils.loc("textures/research/research_unknown.png");
 
+    protected final ResourceKey<Registry<ResearchDiscipline>> registryKey;
     protected final ResourceKey<ResearchDiscipline> rootKey;
     
-    public ResearchDisciplineKey(ResourceKey<ResearchDiscipline> rootKey) {
+    public ResearchDisciplineKey(ResourceKey<Registry<ResearchDiscipline>> registryKey, ResourceKey<ResearchDiscipline> rootKey) {
+        this.registryKey = registryKey;
         this.rootKey = rootKey;
+    }
+
+    public ResourceKey<Registry<ResearchDiscipline>> getRegistryKey() {
+        return this.registryKey;
     }
     
     public ResourceKey<ResearchDiscipline> getRootKey() {
@@ -69,7 +82,7 @@ public class ResearchDisciplineKey extends AbstractResearchKey<ResearchDisciplin
 
     @Override
     public IconDefinition getIcon(RegistryAccess registryAccess) {
-        return IconDefinition.of(registryAccess.registryOrThrow(RegistryKeysVC.RESEARCH_DISCIPLINES).getHolder(this.rootKey).map(ref -> ref.value().iconLocation()).orElse(ICON_UNKNOWN));
+        return IconDefinition.of(registryAccess.registryOrThrow(this.registryKey).getHolder(this.rootKey).map(ref -> ref.value().iconLocation()).orElse(ICON_UNKNOWN));
     }
 
     @Override
@@ -78,7 +91,7 @@ public class ResearchDisciplineKey extends AbstractResearchKey<ResearchDisciplin
             return false;
         }
         RegistryAccess registryAccess = player.level().registryAccess();
-        Holder.Reference<ResearchDiscipline> discipline = registryAccess.registryOrThrow(RegistryKeysVC.RESEARCH_DISCIPLINES).getHolderOrThrow(this.rootKey);
+        Holder.Reference<ResearchDiscipline> discipline = registryAccess.registryOrThrow(this.registryKey).getHolderOrThrow(this.rootKey);
         MutableBoolean retVal = new MutableBoolean(false);
         discipline.value().unlockRequirementOpt().ifPresentOrElse(req -> {
             // If the discipline does have an unlock requirement, then the discipline is only known if that requirement is met
