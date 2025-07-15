@@ -3,7 +3,7 @@ package com.verdantartifice.verdantcore.common.research.keys;
 import com.google.common.base.Preconditions;
 import com.mojang.serialization.MapCodec;
 import com.verdantartifice.verdantcore.common.misc.IconDefinition;
-import com.verdantartifice.verdantcore.common.research.ResearchManager;
+import com.verdantartifice.verdantcore.common.research.ResearchManagerVC;
 import com.verdantartifice.verdantcore.common.research.requirements.RequirementCategory;
 import com.verdantartifice.verdantcore.common.util.StreamCodecUtils;
 import io.netty.buffer.ByteBuf;
@@ -25,7 +25,7 @@ public class TagCraftedKey extends AbstractResearchKey<TagCraftedKey> {
     
     public TagCraftedKey(TagKey<Item> tagKey) {
         this.tagKey = Preconditions.checkNotNull(tagKey);
-        ResearchManager.addCraftingReference(this.tagKey.hashCode());
+        ResearchManagerVC.addCraftingReference(this.tagKey.hashCode());
     }
 
     @Override

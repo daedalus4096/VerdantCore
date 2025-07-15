@@ -5,7 +5,7 @@ import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.verdantartifice.verdantcore.common.capabilities.IPlayerKnowledge;
 import com.verdantartifice.verdantcore.common.research.KnowledgeType;
-import com.verdantartifice.verdantcore.common.research.ResearchManager;
+import com.verdantartifice.verdantcore.common.research.ResearchManagerVC;
 import com.verdantartifice.verdantcore.common.research.requirements.AbstractRequirement;
 import com.verdantartifice.verdantcore.platform.ServicesVC;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -73,7 +73,7 @@ public class ObservationProjectMaterial extends AbstractProjectMaterial<Observat
     @Override
     public boolean consume(Player player) {
         // Deduct observation level(s) from the player's knowledge pool
-        return ResearchManager.addKnowledge(player, KnowledgeType.OBSERVATION, -1 * this.count * KnowledgeType.OBSERVATION.getProgression());
+        return ResearchManagerVC.addKnowledge(player, KnowledgeType.OBSERVATION, -1 * this.count * KnowledgeType.OBSERVATION.getProgression());
     }
     
     public int getCount() {

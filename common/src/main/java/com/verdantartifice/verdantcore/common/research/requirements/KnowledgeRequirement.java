@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.verdantartifice.verdantcore.common.research.KnowledgeType;
-import com.verdantartifice.verdantcore.common.research.ResearchManager;
+import com.verdantartifice.verdantcore.common.research.ResearchManagerVC;
 import com.verdantartifice.verdantcore.platform.ServicesVC;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -68,7 +68,7 @@ public class KnowledgeRequirement extends AbstractRequirement<KnowledgeRequireme
     @Override
     public void consumeComponents(Player player) {
         if (player != null && this.isMetBy(player)) {
-            ResearchManager.addKnowledge(player, this.knowledgeType, -(this.amount * this.knowledgeType.getProgression()));
+            ResearchManagerVC.addKnowledge(player, this.knowledgeType, -(this.amount * this.knowledgeType.getProgression()));
         }
     }
 

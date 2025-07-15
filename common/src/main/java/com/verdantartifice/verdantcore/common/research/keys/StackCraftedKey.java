@@ -2,7 +2,7 @@ package com.verdantartifice.verdantcore.common.research.keys;
 
 import com.mojang.serialization.MapCodec;
 import com.verdantartifice.verdantcore.common.misc.IconDefinition;
-import com.verdantartifice.verdantcore.common.research.ResearchManager;
+import com.verdantartifice.verdantcore.common.research.ResearchManagerVC;
 import com.verdantartifice.verdantcore.common.research.requirements.RequirementCategory;
 import com.verdantartifice.verdantcore.platform.ServicesVC;
 import net.minecraft.core.RegistryAccess;
@@ -26,7 +26,7 @@ public class StackCraftedKey extends AbstractResearchKey<StackCraftedKey> {
             throw new IllegalArgumentException("Item stack may not be null or empty");
         }
         this.stack = stack.copyWithCount(1);    // Preserve the stack NBT but not its count
-        ResearchManager.addCraftingReference(this.hashCode());
+        ResearchManagerVC.addCraftingReference(this.hashCode());
     }
     
     public StackCraftedKey(ItemLike itemLike) {

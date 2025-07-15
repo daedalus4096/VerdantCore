@@ -2,7 +2,7 @@ package com.verdantartifice.verdantcore.common.research.requirements;
 
 import com.google.common.base.Preconditions;
 import com.mojang.serialization.MapCodec;
-import com.verdantartifice.verdantcore.common.research.ResearchManager;
+import com.verdantartifice.verdantcore.common.research.ResearchManagerVC;
 import com.verdantartifice.verdantcore.common.research.keys.AbstractResearchKey;
 import com.verdantartifice.verdantcore.common.research.keys.ResearchEntryKey;
 import com.verdantartifice.verdantcore.platform.ServicesVC;
@@ -50,7 +50,7 @@ public class ResearchRequirement extends AbstractRequirement<ResearchRequirement
     public boolean forceComplete(Player player) {
         // Complete the required research
         if (this.rootKey instanceof ResearchEntryKey entryKey) {
-            return ResearchManager.completeResearch(player, entryKey, true, true, false);
+            return ResearchManagerVC.completeResearch(player, entryKey, true, true, false);
         } else {
             ServicesVC.CAPABILITIES.knowledge(player).ifPresent(k -> k.addResearch(this.rootKey));
             return true;
