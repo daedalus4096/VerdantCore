@@ -23,13 +23,11 @@ import com.verdantartifice.verdantcore.common.research.requirements.VanillaItemU
 import com.verdantartifice.verdantcore.common.research.topics.AbstractResearchTopic;
 import com.verdantartifice.verdantcore.common.research.topics.TopicLink;
 import com.verdantartifice.verdantcore.common.rewards.AbstractReward;
-import com.verdantartifice.verdantcore.common.rewards.AttunementReward;
-import com.verdantartifice.verdantcore.common.sources.Source;
-import com.verdantartifice.verdantcore.common.sources.SourceList;
 import com.verdantartifice.verdantcore.common.stats.Stat;
 import com.verdantartifice.verdantcore.common.util.ResourceUtils;
 import com.verdantartifice.verdantcore.common.util.StreamCodecUtils;
 import com.verdantartifice.verdantcore.platform.ServicesVC;
+import net.minecraft.core.Registry;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -189,7 +187,7 @@ public record ResearchStage(ResearchEntryKey parentKey, String textTranslationKe
         }
         
         public Builder requiredResearch(ResourceKey<ResearchEntry> entryKey) {
-            return this.requirement(new ResearchRequirement(new ResearchEntryKey(entryKey)));
+            return this.requirement(new ResearchRequirement(new ResearchEntryKey(this.parentKey.getRegistryKey(), entryKey)));
         }
         
         protected Builder requiredKnowledge(KnowledgeType type, int levels) {
@@ -216,12 +214,12 @@ public record ResearchStage(ResearchEntryKey parentKey, String textTranslationKe
             return this.requirement(new VanillaItemUsedStatRequirement(item.asItem(), value));
         }
         
-        public Builder requiredExpertise(ResourceKey<ResearchDiscipline> discipline, ResearchTier tier) {
-            return this.requirement(new ExpertiseRequirement(discipline, tier));
+        public Builder requiredExpertise(ResourceKey<Registry<ResearchDiscipline>> registryKey, ResourceKey<ResearchDiscipline> discipline, ResearchTier tier) {
+            return this.requirement(new ExpertiseRequirement(registryKey, discipline, tier));
         }
         
-        public Builder requiredExpertise(ResourceKey<ResearchDiscipline> discipline, ResearchTier tier, int threshold) {
-            return this.requirement(new ExpertiseRequirement(discipline, tier, threshold));
+        public Builder requiredExpertise(ResourceKey<Registry<ResearchDiscipline>> registryKey, ResourceKey<ResearchDiscipline> discipline, ResearchTier tier, int threshold) {
+            return this.requirement(new ExpertiseRequirement(registryKey, discipline, tier, threshold));
         }
         
         public Builder recipe(String name) {
@@ -242,27 +240,22 @@ public record ResearchStage(ResearchEntryKey parentKey, String textTranslationKe
         }
         
         public Builder sibling(ResourceKey<ResearchEntry> siblingKey) {
-            this.siblings.add(new ResearchEntryKey(siblingKey));
+            this.siblings.add(new ResearchEntryKey(this.parentKey.getRegistryKey(), siblingKey));
             return this;
         }
         
         public Builder reveals(ResourceKey<ResearchEntry> revelationKey) {
-            this.revelations.add(new ResearchEntryKey(revelationKey));
+            this.revelations.add(new ResearchEntryKey(this.parentKey.getRegistryKey(), revelationKey));
             return this;
         }
 
         public Builder highlights(ResourceKey<ResearchEntry> highlightKey) {
-            this.highlights.add(new ResearchEntryKey(highlightKey));
+            this.highlights.add(new ResearchEntryKey(this.parentKey.getRegistryKey(), highlightKey));
             return this;
         }
-        
-        public Builder attunement(SourceList sources) {
-            sources.getSourcesSorted().stream().map(s -> new AttunementReward(s, sources.getAmount(s))).forEach(this.rewards::add);
-            return this;
-        }
-        
-        public Builder attunement(Source source, int amount) {
-            this.rewards.add(new AttunementReward(source, amount));
+
+        public Builder reward(AbstractReward<?> reward) {
+            this.rewards.add(reward);
             return this;
         }
 
