@@ -4,6 +4,7 @@ import com.mojang.serialization.Codec;
 import com.verdantartifice.verdantcore.common.research.KnowledgeType;
 import com.verdantartifice.verdantcore.common.research.keys.AbstractResearchKey;
 import com.verdantartifice.verdantcore.common.research.topics.AbstractResearchTopic;
+import com.verdantartifice.verdantcore.common.theorycrafting.Project;
 import com.verdantartifice.verdantcore.common.util.INBTSerializableVC;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.RegistryAccess;
