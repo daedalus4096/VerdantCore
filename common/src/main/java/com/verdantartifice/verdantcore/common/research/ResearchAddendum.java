@@ -16,13 +16,9 @@ import com.verdantartifice.verdantcore.common.research.requirements.KnowledgeReq
 import com.verdantartifice.verdantcore.common.research.requirements.ResearchRequirement;
 import com.verdantartifice.verdantcore.common.research.requirements.StatRequirement;
 import com.verdantartifice.verdantcore.common.rewards.AbstractReward;
-import com.verdantartifice.verdantcore.common.rewards.AttunementReward;
-import com.verdantartifice.verdantcore.common.sources.Source;
-import com.verdantartifice.verdantcore.common.sources.SourceList;
 import com.verdantartifice.verdantcore.common.stats.Stat;
 import com.verdantartifice.verdantcore.common.util.ResourceUtils;
 import com.verdantartifice.verdantcore.platform.ServicesVC;
-import net.minecraft.core.Holder;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
@@ -31,7 +27,6 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.enchantment.Enchantment;
 import net.minecraft.world.level.ItemLike;
 
 import java.util.ArrayList;
@@ -106,14 +101,14 @@ public record ResearchAddendum(ResearchEntryKey parentKey, String textTranslatio
             this.recipes.add(recipe);
             return this;
         }
-        
-        public Builder siblingResearch(ResourceKey<ResearchEntry> siblingKey) {
-            this.siblings.add(new ResearchEntryKey(siblingKey));
+
+        public Builder sibling(AbstractResearchKey<?> sibling) {
+            this.siblings.add(sibling);
             return this;
         }
         
-        public Builder siblingEnchantment(Holder<Enchantment> runeEnchantment) {
-            this.siblings.add(new RuneEnchantmentKey(runeEnchantment));
+        public Builder siblingResearch(ResourceKey<ResearchEntry> siblingKey) {
+            this.siblings.add(new ResearchEntryKey(this.parentKey.getRegistryKey(), siblingKey));
             return this;
         }
         
@@ -155,7 +150,7 @@ public record ResearchAddendum(ResearchEntryKey parentKey, String textTranslatio
         }
         
         public Builder requiredResearch(ResourceKey<ResearchEntry> entryKey) {
-            return this.requirement(new ResearchRequirement(new ResearchEntryKey(entryKey)));
+            return this.requirement(new ResearchRequirement(new ResearchEntryKey(this.parentKey.getRegistryKey(), entryKey)));
         }
         
         public Builder requiredKnowledge(KnowledgeType type, int levels) {
@@ -166,16 +161,11 @@ public record ResearchAddendum(ResearchEntryKey parentKey, String textTranslatio
             return this.requirement(new StatRequirement(stat, value));
         }
 
-        public Builder attunement(SourceList sources) {
-            sources.getSourcesSorted().stream().map(s -> new AttunementReward(s, sources.getAmount(s))).forEach(this.rewards::add);
+        public Builder reward(AbstractReward<?> reward) {
+            this.rewards.add(reward);
             return this;
         }
 
-        public Builder attunement(Source source, int amount) {
-            this.rewards.add(new AttunementReward(source, amount));
-            return this;
-        }
-        
         protected String getTextTranslationKey() {
             return String.join(".", "research", this.modId.toLowerCase(), this.parentKey.getRootKey().location().getPath().toLowerCase(), "text", "addenda", Integer.toString(this.addendumIndex));
         }
