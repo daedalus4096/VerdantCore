@@ -34,7 +34,7 @@ public class Knowledge {
             if (tokens.length == 2) {
                 KnowledgeType type;
                 try {
-                    type = KnowledgeType.valueOf(tokens[0].toUpperCase());
+                    type = KnowledgeType.get(tokens[0]);
                 } catch (Exception e) {
                     return null;
                 }
@@ -65,11 +65,7 @@ public class Knowledge {
     
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append(this.type.name());
-        builder.append(";");
-        builder.append(this.amount);
-        return builder.toString();
+        return this.type.getSerializedName() + ";" + this.amount;
     }
 
     @Override

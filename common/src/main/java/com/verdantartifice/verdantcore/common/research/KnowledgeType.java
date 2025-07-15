@@ -1,41 +1,52 @@
 package com.verdantartifice.verdantcore.common.research;
 
 import com.mojang.serialization.Codec;
-import com.verdantartifice.verdantcore.Constants;
-import com.verdantartifice.verdantcore.common.util.ResourceUtils;
+import com.verdantartifice.verdantcore.common.stats.Stat;
 import io.netty.buffer.ByteBuf;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.util.ByIdMap;
 import net.minecraft.util.StringRepresentable;
+import org.jetbrains.annotations.NotNull;
 
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import java.util.function.IntFunction;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Objects;
+import java.util.Optional;
 
-public enum KnowledgeType implements StringRepresentable {
-    OBSERVATION(0, "observation", 16, ResourceUtils.loc("textures/research/knowledge_observation.png")),
-    THEORY(1, "theory", 32, ResourceUtils.loc("textures/research/knowledge_theory.png"));
-    
-    private static final IntFunction<KnowledgeType> BY_ID = ByIdMap.continuous(KnowledgeType::getId, values(), ByIdMap.OutOfBoundsStrategy.ZERO);
-    public static final Codec<KnowledgeType> CODEC = StringRepresentable.fromValues(KnowledgeType::values);
-    public static final StreamCodec<ByteBuf, KnowledgeType> STREAM_CODEC = ByteBufCodecs.idMapper(BY_ID, KnowledgeType::getId);
+/**
+ * Represents a type of knowledge, that being a form of currency the player spends in pursuit of research.
+ *
+ * @author Daedalus4096
+ */
+public class KnowledgeType implements StringRepresentable {
+    private static final Map<ResourceLocation, KnowledgeType> TYPES = new HashMap<>();
+
+    public static final Codec<KnowledgeType> CODEC = ResourceLocation.CODEC.xmap(KnowledgeType::get, KnowledgeType::getName);
+    public static final StreamCodec<ByteBuf, KnowledgeType> STREAM_CODEC = ResourceLocation.STREAM_CODEC.map(KnowledgeType::get, KnowledgeType::getName);
 
     private final int id;
-    private final String name;
+    private final ResourceLocation name;
     private final short progression;  // How many points make a complete level for this knowledge type
     private final ResourceLocation iconLocation;
+    private final Optional<Stat> trackerStatOpt;
     
-    private KnowledgeType(int id, String name, int progression, @Nonnull ResourceLocation iconLocation) {
+    private KnowledgeType(int id, @Nonnull ResourceLocation name, int progression, @Nonnull ResourceLocation iconLocation, @Nonnull Optional<Stat> trackerStatOpt) {
         this.id = id;
         this.name = name;
         this.progression = (short)progression;
         this.iconLocation = iconLocation;
+        this.trackerStatOpt = trackerStatOpt;
+        TYPES.put(name, this);
     }
     
     public int getId() {
         return this.id;
+    }
+
+    public ResourceLocation getName() {
+        return this.name;
     }
     
     public int getProgression() {
@@ -46,24 +57,40 @@ public enum KnowledgeType implements StringRepresentable {
     public ResourceLocation getIconLocation() {
         return this.iconLocation;
     }
+
+    @Nonnull
+    public Optional<Stat> getTrackerStatOpt() {
+        return this.trackerStatOpt;
+    }
     
     @Nonnull
     public String getNameTranslationKey() {
-        return String.join(".", "knowledge_type", Constants.MOD_ID, this.getSerializedName());
+        return String.join(".", "knowledge_type", this.name.getNamespace(), this.name.getPath());
     }
 
     @Override
-    public String getSerializedName() {
-        return this.name;
+    public @NotNull String getSerializedName() {
+        return this.name.toString();
     }
-    
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof KnowledgeType that)) return false;
+        return Objects.equals(name, that.name);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(name);
+    }
+
     @Nullable
-    public static KnowledgeType fromName(@Nullable String name) {
-        for (KnowledgeType knowledgeType : values()) {
-            if (knowledgeType.getSerializedName().equals(name)) {
-                return knowledgeType;
-            }
-        }
-        return null;
+    public static KnowledgeType get(String nameStr) {
+        return get(ResourceLocation.tryParse(nameStr));
+    }
+
+    @Nullable
+    public static KnowledgeType get(ResourceLocation name) {
+        return TYPES.get(name);
     }
 }

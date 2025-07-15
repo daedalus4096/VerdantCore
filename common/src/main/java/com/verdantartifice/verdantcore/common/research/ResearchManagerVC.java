@@ -517,11 +517,11 @@ public class ResearchManagerVC {
         return true;
     }
     
-    public static boolean addKnowledge(Player player, KnowledgeType type, int points) {
+    public static boolean addKnowledge(Player player, @Nonnull KnowledgeType type, int points) {
         return addKnowledge(player, type, points, true);
     }
     
-    public static boolean addKnowledge(Player player, KnowledgeType type, int points, boolean scheduleSync) {
+    public static boolean addKnowledge(Player player, @Nonnull KnowledgeType type, int points, boolean scheduleSync) {
         // Add the given number of knowledge points to the player and sync to their client
         IPlayerKnowledge knowledge = ServicesVC.CAPABILITIES.knowledge(player).orElse(null);
         if (knowledge == null) {
@@ -535,11 +535,7 @@ public class ResearchManagerVC {
         if (points > 0) {
             int levelsAfter = knowledge.getKnowledge(type);
             int delta = levelsAfter - levelsBefore;
-            if (type == KnowledgeType.OBSERVATION) {
-                StatsManager.incrementValue(player, StatsPM.OBSERVATIONS_MADE, delta);
-            } else if (type == KnowledgeType.THEORY) {
-                StatsManager.incrementValue(player, StatsPM.THEORIES_FORMED, delta);
-            }
+            type.getTrackerStatOpt().ifPresent(stat -> StatsManager.incrementValue(player, stat, delta));
             for (int index = 0; index < delta; index++) {
                 // TODO send knowledge gain packet to player to show client effects for each level gained
             }
