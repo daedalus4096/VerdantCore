@@ -44,36 +44,32 @@ import java.util.stream.Stream;
 public record ResearchEntry(ResearchEntryKey key, Optional<ResearchDisciplineKey> disciplineKeyOpt, Optional<ResearchTier> tierOpt,
                             Optional<String> nameKeyOpt, Optional<IconDefinition> iconOpt, List<ResearchEntryKey> parents, Flags flags,
                             List<ResearchDisciplineKey> finales, List<ResearchStage> stages, List<ResearchAddendum> addenda) {
-    public static Codec<ResearchEntry> codec(ResourceKey<Registry<ResearchDiscipline>> disciplineRegistryKey, ResourceKey<Registry<ResearchEntry>> entryRegistryKey) {
-        return RecordCodecBuilder.create(instance -> instance.group(
-                ResearchEntryKey.codec(entryRegistryKey).fieldOf("key").forGetter(ResearchEntry::key),
-                ResearchDisciplineKey.codec(disciplineRegistryKey).codec().optionalFieldOf("disciplineKey").forGetter(ResearchEntry::disciplineKeyOpt),
+    public static final Codec<ResearchEntry> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                ResearchEntryKey.CODEC.fieldOf("key").forGetter(ResearchEntry::key),
+                ResearchDisciplineKey.CODEC.codec().optionalFieldOf("disciplineKey").forGetter(ResearchEntry::disciplineKeyOpt),
                 ResearchTier.CODEC.optionalFieldOf("tier").forGetter(ResearchEntry::tierOpt),
                 Codec.STRING.optionalFieldOf("nameKey").forGetter(ResearchEntry::nameKeyOpt),
                 IconDefinition.CODEC.optionalFieldOf("icon").forGetter(ResearchEntry::iconOpt),
-                ResearchEntryKey.codec(entryRegistryKey).codec().listOf().fieldOf("parents").forGetter(ResearchEntry::parents),
+                ResearchEntryKey.CODEC.codec().listOf().fieldOf("parents").forGetter(ResearchEntry::parents),
                 Flags.CODEC.fieldOf("flags").forGetter(ResearchEntry::flags),
-                ResearchDisciplineKey.codec(disciplineRegistryKey).codec().listOf().fieldOf("finales").forGetter(ResearchEntry::finales),
+                ResearchDisciplineKey.CODEC.codec().listOf().fieldOf("finales").forGetter(ResearchEntry::finales),
                 ResearchStage.codec().listOf().fieldOf("stages").forGetter(ResearchEntry::stages),
                 ResearchAddendum.codec().listOf().fieldOf("addenda").forGetter(ResearchEntry::addenda)
             ).apply(instance, ResearchEntry::new));
-    }
-    
-    public static StreamCodec<RegistryFriendlyByteBuf, ResearchEntry> streamCodec(ResourceKey<Registry<ResearchDiscipline>> disciplineRegistryKey, ResourceKey<Registry<ResearchEntry>> entryRegistryKey) {
-        return StreamCodecUtils.composite(
-                ResearchEntryKey.streamCodec(entryRegistryKey), ResearchEntry::key,
-                ByteBufCodecs.optional(ResearchDisciplineKey.streamCodec(disciplineRegistryKey)), ResearchEntry::disciplineKeyOpt,
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, ResearchEntry> STREAM_CODEC = StreamCodecUtils.composite(
+                ResearchEntryKey.STREAM_CODEC, ResearchEntry::key,
+                ByteBufCodecs.optional(ResearchDisciplineKey.STREAM_CODEC), ResearchEntry::disciplineKeyOpt,
                 ByteBufCodecs.optional(ResearchTier.STREAM_CODEC), ResearchEntry::tierOpt,
                 ByteBufCodecs.optional(ByteBufCodecs.STRING_UTF8), ResearchEntry::nameKeyOpt,
                 ByteBufCodecs.optional(IconDefinition.STREAM_CODEC), ResearchEntry::iconOpt,
-                ResearchEntryKey.streamCodec(entryRegistryKey).apply(ByteBufCodecs.list()), ResearchEntry::parents,
+                ResearchEntryKey.STREAM_CODEC.apply(ByteBufCodecs.list()), ResearchEntry::parents,
                 Flags.STREAM_CODEC, ResearchEntry::flags,
-                ResearchDisciplineKey.streamCodec(disciplineRegistryKey).apply(ByteBufCodecs.list()), ResearchEntry::finales,
+                ResearchDisciplineKey.STREAM_CODEC.apply(ByteBufCodecs.list()), ResearchEntry::finales,
                 ResearchStage.streamCodec().apply(ByteBufCodecs.list()), ResearchEntry::stages,
                 ResearchAddendum.streamCodec().apply(ByteBufCodecs.list()), ResearchEntry::addenda,
                 ResearchEntry::new);
-    }
-    
+
     public static Builder builder(String modId, ResourceKey<Registry<ResearchEntry>> registryKey, ResourceKey<ResearchEntry> key) {
         return new Builder(modId, registryKey, key);
     }

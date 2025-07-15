@@ -34,17 +34,15 @@ import java.util.stream.Stream;
  */
 public record ResearchDiscipline(ResearchDisciplineKey key, Optional<AbstractRequirement<?>> unlockRequirementOpt, ResourceLocation iconLocation, Optional<Stat> craftingStat, 
         Optional<Stat> expertiseStat, Optional<Integer> indexSortOrder) {
-    public static Codec<ResearchDiscipline> codec(ResourceKey<Registry<ResearchDiscipline>> disciplineRegistryKey) {
-        return RecordCodecBuilder.create(instance -> instance.group(
-                ResearchDisciplineKey.codec(disciplineRegistryKey).fieldOf("key").forGetter(ResearchDiscipline::key),
+    public static final Codec<ResearchDiscipline> CODEC = RecordCodecBuilder.create(instance -> instance.group(
+                ResearchDisciplineKey.CODEC.fieldOf("key").forGetter(ResearchDiscipline::key),
                 AbstractRequirement.dispatchCodec().optionalFieldOf("unlockRequirementOpt").forGetter(ResearchDiscipline::unlockRequirementOpt),
                 ResourceLocation.CODEC.fieldOf("iconLocation").forGetter(ResearchDiscipline::iconLocation),
                 ResourceLocation.CODEC.optionalFieldOf("craftingStat").xmap(locOpt -> locOpt.map(StatsManager::getStat), statOpt -> statOpt.map(Stat::key)).forGetter(ResearchDiscipline::craftingStat),
                 ResourceLocation.CODEC.optionalFieldOf("expertiseStat").xmap(locOpt -> locOpt.map(StatsManager::getStat), statOpt -> statOpt.map(Stat::key)).forGetter(ResearchDiscipline::expertiseStat),
                 Codec.INT.optionalFieldOf("indexSortOrder").forGetter(ResearchDiscipline::indexSortOrder)
             ).apply(instance, ResearchDiscipline::new));
-    }
-    
+
     @Nonnull
     public String getNameTranslationKey() {
         return String.join(".", "research_discipline", Constants.MOD_ID, this.key.getRootKey().location().getPath());

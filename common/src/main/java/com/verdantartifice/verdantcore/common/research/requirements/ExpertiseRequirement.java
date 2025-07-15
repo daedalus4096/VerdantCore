@@ -29,22 +29,18 @@ import java.util.stream.Stream;
  * @author Daedalus4096
  */
 public class ExpertiseRequirement extends AbstractRequirement<ExpertiseRequirement> {
-    public static MapCodec<ExpertiseRequirement> codec(ResourceKey<Registry<ResearchDiscipline>> disciplineRegistryKey) {
-        return RecordCodecBuilder.mapCodec(instance -> instance.group(
-                ResearchDisciplineKey.codec(disciplineRegistryKey).fieldOf("discipline").forGetter(ExpertiseRequirement::getDiscipline),
+    public static final MapCodec<ExpertiseRequirement> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+                ResearchDisciplineKey.CODEC.fieldOf("discipline").forGetter(ExpertiseRequirement::getDiscipline),
                 ResearchTier.CODEC.fieldOf("tier").forGetter(ExpertiseRequirement::getTier),
                 Codec.INT.optionalFieldOf("thresholdOverride").forGetter(r -> r.thresholdOverrideOpt)
             ).apply(instance, ExpertiseRequirement::new));
-    }
-    
-    public static StreamCodec<ByteBuf, ExpertiseRequirement> streamCodec(ResourceKey<Registry<ResearchDiscipline>> disciplineRegistryKey) {
-        return StreamCodec.composite(
-                ResearchDisciplineKey.streamCodec(disciplineRegistryKey), ExpertiseRequirement::getDiscipline,
+
+    public static final StreamCodec<ByteBuf, ExpertiseRequirement> STREAM_CODEC = StreamCodec.composite(
+                ResearchDisciplineKey.STREAM_CODEC, ExpertiseRequirement::getDiscipline,
                 ResearchTier.STREAM_CODEC, ExpertiseRequirement::getTier,
                 ByteBufCodecs.optional(ByteBufCodecs.VAR_INT), req -> req.thresholdOverrideOpt,
                 ExpertiseRequirement::new);
-    }
-    
+
     protected final ResearchDisciplineKey discipline;
     protected final ResearchTier tier;
     protected final Optional<Integer> thresholdOverrideOpt;

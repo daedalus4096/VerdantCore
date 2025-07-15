@@ -24,20 +24,16 @@ import java.util.Optional;
  * @author Daedalus4096
  */
 public class DisciplineResearchTopic extends AbstractResearchTopic<DisciplineResearchTopic> {
-    public static MapCodec<DisciplineResearchTopic> codec(ResourceKey<Registry<ResearchDiscipline>> disciplineRegistryKey) {
-        return RecordCodecBuilder.mapCodec(instance -> instance.group(
-                ResearchDisciplineKey.codec(disciplineRegistryKey).fieldOf("data").forGetter(DisciplineResearchTopic::getDiscipline),
+    public static final MapCodec<DisciplineResearchTopic> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+                ResearchDisciplineKey.CODEC.fieldOf("data").forGetter(DisciplineResearchTopic::getDiscipline),
                 Codec.INT.fieldOf("page").forGetter(DisciplineResearchTopic::getPage)
             ).apply(instance, DisciplineResearchTopic::new));
-    }
-    
-    public static StreamCodec<ByteBuf, DisciplineResearchTopic> streamCodec(ResourceKey<Registry<ResearchDiscipline>> disciplineRegistryKey) {
-        return StreamCodec.composite(
-                ResearchDisciplineKey.streamCodec(disciplineRegistryKey), DisciplineResearchTopic::getDiscipline,
+
+    public static final StreamCodec<ByteBuf, DisciplineResearchTopic> STREAM_CODEC = StreamCodec.composite(
+                ResearchDisciplineKey.STREAM_CODEC, DisciplineResearchTopic::getDiscipline,
                 ByteBufCodecs.VAR_INT, DisciplineResearchTopic::getPage,
                 DisciplineResearchTopic::new);
-    }
-    
+
     protected final ResearchDisciplineKey discipline;
     
     public DisciplineResearchTopic(ResearchDisciplineKey disciplineKey, int page) {

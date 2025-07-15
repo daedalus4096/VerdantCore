@@ -1,5 +1,7 @@
 package com.verdantartifice.verdantcore.common.research.keys;
 
+import com.mojang.datafixers.util.Pair;
+import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.verdantartifice.verdantcore.common.misc.IconDefinition;
 import com.verdantartifice.verdantcore.common.research.ResearchDiscipline;
@@ -20,16 +22,24 @@ import javax.annotation.Nonnull;
 import java.util.Objects;
 
 public class ResearchDisciplineKey extends AbstractResearchKey<ResearchDisciplineKey> {
-    public static MapCodec<ResearchDisciplineKey> codec(ResourceKey<Registry<ResearchDiscipline>> registryKey) {
-        return ResourceKey.codec(registryKey).fieldOf("rootKey").xmap(
-                rootKey -> new ResearchDisciplineKey(registryKey, rootKey), key -> key.rootKey);
-    }
+    public static final MapCodec<ResearchDisciplineKey> CODEC = Codec.mapPair(ResourceLocation.CODEC.fieldOf("registry"), ResourceLocation.CODEC.fieldOf("discipline"))
+            .xmap(
+                    pair -> {
+                        ResourceKey<Registry<ResearchDiscipline>> registryKey = ResourceKey.createRegistryKey(pair.getFirst());
+                        return new ResearchDisciplineKey(registryKey, ResourceKey.create(registryKey, pair.getSecond()));
+                    },
+                    key -> new Pair<>(key.getRegistryKey().location(), key.getRootKey().location())
+            );
 
-    public static StreamCodec<ByteBuf, ResearchDisciplineKey> streamCodec(ResourceKey<Registry<ResearchDiscipline>> registryKey) {
-        return ResourceKey.streamCodec(registryKey).map(
-                rootKey -> new ResearchDisciplineKey(registryKey, rootKey), key -> key.rootKey);
-    }
-    
+    public static final StreamCodec<ByteBuf, ResearchDisciplineKey> STREAM_CODEC = StreamCodec.composite(
+            ResourceLocation.STREAM_CODEC, key -> key.getRegistryKey().location(),
+            ResourceLocation.STREAM_CODEC, key -> key.getRootKey().location(),
+            (loc1, loc2) -> {
+                ResourceKey<Registry<ResearchDiscipline>> registryKey = ResourceKey.createRegistryKey(loc1);
+                return new ResearchDisciplineKey(registryKey, ResourceKey.create(registryKey, loc2));
+            }
+    );
+
     private static final ResourceLocation ICON_UNKNOWN = ResourceUtils.loc("textures/research/research_unknown.png");
 
     protected final ResourceKey<Registry<ResearchDiscipline>> registryKey;
