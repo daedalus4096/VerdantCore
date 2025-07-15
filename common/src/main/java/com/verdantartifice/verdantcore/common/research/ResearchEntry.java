@@ -7,7 +7,6 @@ import com.verdantartifice.verdantcore.common.capabilities.IPlayerKnowledge;
 import com.verdantartifice.verdantcore.common.misc.IconDefinition;
 import com.verdantartifice.verdantcore.common.research.keys.ResearchDisciplineKey;
 import com.verdantartifice.verdantcore.common.research.keys.ResearchEntryKey;
-import com.verdantartifice.verdantcore.common.tags.ResearchEntryTagsPM;
 import com.verdantartifice.verdantcore.common.util.ResourceUtils;
 import com.verdantartifice.verdantcore.common.util.StreamCodecUtils;
 import com.verdantartifice.verdantcore.platform.ServicesVC;
@@ -19,6 +18,7 @@ import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ItemLike;
 
@@ -165,15 +165,15 @@ public record ResearchEntry(ResearchEntryKey key, Optional<ResearchDisciplineKey
         return this.parents.isEmpty() || this.parents.stream().allMatch(key -> key.isKnownBy(player));
     }
     
-    public boolean isUpcoming(@Nonnull Player player, @Nonnull ResourceKey<Registry<ResearchEntry>> registryKey) {
-        Registry<ResearchEntry> registry = player.level().registryAccess().registryOrThrow(registryKey);
-        return !this.parents.stream().map(k -> registry.getHolder(k.getRootKey())).anyMatch(opt -> {
-            return opt.isPresent() && ((opt.get().is(ResearchEntryTagsPM.OPAQUE) && !opt.get().value().key().isKnownBy(player)) || !opt.get().value().isAvailable(player));
+    public boolean isUpcoming(@Nonnull Player player, @Nonnull Optional<TagKey<ResearchEntry>> opaqueTagOpt) {
+        Registry<ResearchEntry> registry = player.level().registryAccess().registryOrThrow(this.key.getRegistryKey());
+        return this.parents.stream().map(k -> registry.getHolder(k.getRootKey())).noneMatch(opt -> {
+            return opt.isPresent() && ((opaqueTagOpt.isPresent() && opt.get().is(opaqueTagOpt.get()) && !opt.get().value().key().isKnownBy(player)) || !opt.get().value().isAvailable(player));
         });
     }
 
-    public boolean isVisible(@Nonnull Player player, @Nonnull ResourceKey<Registry<ResearchEntry>> registryKey) {
-        return this.isAvailable(player) || this.isUpcoming(player, registryKey);
+    public boolean isVisible(@Nonnull Player player, @Nonnull Optional<TagKey<ResearchEntry>> opaqueTagOpt) {
+        return this.isAvailable(player) || this.isUpcoming(player, opaqueTagOpt);
     }
 
     public boolean isUnknown(@Nonnull Player player) {
@@ -186,7 +186,7 @@ public record ResearchEntry(ResearchEntryKey key, Optional<ResearchDisciplineKey
     }
     
     @Nonnull
-    public Set<ResourceLocation> getKnownRecipeIds(@Nonnull Player player, @Nonnull ResourceKey<Registry<ResearchEntry>> registryKey) {
+    public Set<ResourceLocation> getKnownRecipeIds(@Nonnull Player player) {
         Set<ResourceLocation> retVal = new HashSet<>();
         if (this.stages().isEmpty()) {
             // If this research entry has no stages, then it can't have any recipes, so just abort
@@ -214,7 +214,7 @@ public record ResearchEntry(ResearchEntryKey key, Optional<ResearchDisciplineKey
                     }
                 });
             }
-            registryAccess.registryOrThrow(registryKey).forEach(searchEntry -> {
+            registryAccess.registryOrThrow(this.key().getRegistryKey()).forEach(searchEntry -> {
                 if (!searchEntry.addenda().isEmpty() && knowledge.isResearchComplete(registryAccess, searchEntry.key())) {
                     for (ResearchAddendum addendum : searchEntry.addenda()) {
                         addendum.completionRequirementOpt().ifPresent(req -> {
