@@ -1,5 +1,8 @@
 package com.verdantartifice.verdantcore.common.tiles.base;
 
+import com.verdantartifice.verdantcore.common.network.PacketHandler;
+import com.verdantartifice.verdantcore.common.network.packets.data.TileToClientPacket;
+import com.verdantartifice.verdantcore.common.network.packets.data.TileToServerPacket;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.nbt.CompoundTag;
