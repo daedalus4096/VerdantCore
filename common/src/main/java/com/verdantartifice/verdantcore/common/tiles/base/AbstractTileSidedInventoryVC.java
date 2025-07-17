@@ -1,6 +1,6 @@
 package com.verdantartifice.verdantcore.common.tiles.base;
 
-import com.verdantartifice.verdantcore.common.capabilities.IItemHandlerPM;
+import com.verdantartifice.verdantcore.common.capabilities.IItemHandlerVC;
 import com.verdantartifice.verdantcore.common.items.IItemHandlerChangeListener;
 import net.minecraft.advancements.CriteriaTriggers;
 import net.minecraft.core.BlockPos;
@@ -46,18 +46,18 @@ import java.util.Set;
  * 
  * @author Daedalus4096
  */
-public abstract class AbstractTileSidedInventoryPM extends AbstractTilePM implements IRandomizableContents {
+public abstract class AbstractTileSidedInventoryVC extends AbstractTileVC implements IRandomizableContents {
     private static final Logger LOGGER = LogManager.getLogger();
 
     protected final NonNullList<NonNullList<ItemStack>> inventories;
     protected final NonNullList<NonNullList<ItemStack>> syncedInventories;
-    protected final NonNullList<IItemHandlerPM> itemHandlers;
+    protected final NonNullList<IItemHandlerVC> itemHandlers;
     protected final NonNullList<List<IItemHandlerChangeListener>> listeners;
     
     protected ResourceKey<LootTable> lootTable;
     protected long lootTableSeed;
 
-    public AbstractTileSidedInventoryPM(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+    public AbstractTileSidedInventoryVC(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
         
         for (Direction dir : Direction.values()) {
@@ -105,7 +105,7 @@ public abstract class AbstractTileSidedInventoryPM extends AbstractTilePM implem
     
     public abstract Optional<Integer> getInventoryIndexForFace(@NotNull Direction face);
     
-    protected abstract NonNullList<IItemHandlerPM> createItemHandlers();
+    protected abstract NonNullList<IItemHandlerVC> createItemHandlers();
 
     /**
      * This method is intended to provide access to the block entity item handler for a given face during Neoforge
@@ -115,7 +115,7 @@ public abstract class AbstractTileSidedInventoryPM extends AbstractTilePM implem
      * @return the item handler for the given face, or null if one doesn't exist
      */
     @Nullable
-    public IItemHandlerPM getRawItemHandler(@Nullable Direction face) {
+    public IItemHandlerVC getRawItemHandler(@Nullable Direction face) {
         return face == null ? null : this.getInventoryIndexForFace(face).map(this.itemHandlers::get).orElse(null);
     }
 
@@ -127,7 +127,7 @@ public abstract class AbstractTileSidedInventoryPM extends AbstractTilePM implem
      * @return the item handler for the given index, or null if one doesn't exist
      */
     @Nullable
-    public IItemHandlerPM getRawItemHandler(int index) {
+    public IItemHandlerVC getRawItemHandler(int index) {
         return index >= 0 && index < this.itemHandlers.size() ? this.itemHandlers.get(index) : null;
     }
 
@@ -318,7 +318,7 @@ public abstract class AbstractTileSidedInventoryPM extends AbstractTilePM implem
      * 
      * @return an optional item handler capability
      */
-    protected Optional<IItemHandlerPM> getTargetRandomizedInventory() {
+    protected Optional<IItemHandlerVC> getTargetRandomizedInventory() {
         // Return an empty optional by default, so that block entities that don't need loot table support
         // don't have to override this method.
         return Optional.empty();

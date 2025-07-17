@@ -1,7 +1,7 @@
 package com.verdantartifice.verdantcore.common.network.packets.data;
 
 import com.verdantartifice.verdantcore.common.network.packets.IMessageToServer;
-import com.verdantartifice.verdantcore.common.tiles.base.AbstractTilePM;
+import com.verdantartifice.verdantcore.common.tiles.base.AbstractTileVC;
 import com.verdantartifice.verdantcore.common.util.ResourceUtils;
 import commonnetwork.networking.data.PacketContext;
 import net.minecraft.core.BlockPos;
@@ -52,7 +52,7 @@ public class TileToServerPacket implements IMessageToServer {
         // Only process tile entities that are currently loaded into the world.  Safety check to prevent
         // resource thrashing from falsified packets.
         if (world != null && world.hasChunkAt(message.pos)) {
-            if (world.getBlockEntity(message.pos) instanceof AbstractTilePM tile) {
+            if (world.getBlockEntity(message.pos) instanceof AbstractTileVC tile) {
                 tile.onMessageFromClient(message.data == null ? new CompoundTag() : message.data, sender);
             }
         }

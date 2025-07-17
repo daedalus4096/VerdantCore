@@ -1,7 +1,7 @@
 package com.verdantartifice.verdantcore.platform;
 
 import com.verdantartifice.verdantcore.common.fluids.FluidStackPMForge;
-import com.verdantartifice.verdantcore.common.fluids.IFluidStackPM;
+import com.verdantartifice.verdantcore.common.fluids.IFluidStackVC;
 import com.verdantartifice.verdantcore.platform.services.IFluidService;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
@@ -12,12 +12,12 @@ import org.jetbrains.annotations.NotNull;
 
 public class FluidServiceForge implements IFluidService {
     @Override
-    public @NotNull IFluidStackPM emptyStack() {
+    public @NotNull IFluidStackVC emptyStack() {
         return FluidStackPMForge.EMPTY;
     }
 
     @Override
-    public @NotNull IFluidStackPM makeFluidStack(@NotNull Fluid fluid, int amount) {
+    public @NotNull IFluidStackVC makeFluidStack(@NotNull Fluid fluid, int amount) {
         return new FluidStackPMForge(fluid, amount);
     }
 

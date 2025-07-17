@@ -8,7 +8,7 @@ import net.minecraft.world.level.material.Fluid;
  *
  * @author Daedalus4096
  */
-public interface IFluidStackPM {
+public interface IFluidStackVC {
     Fluid getFluid();
     int getAmount();
     boolean isEmpty();

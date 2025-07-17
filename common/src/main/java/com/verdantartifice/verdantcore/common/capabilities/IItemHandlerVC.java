@@ -11,7 +11,7 @@ import java.util.function.Function;
  * Common interface mirroring the Forge and Neoforge item handler capability interfaces.
  * Provided here so that common code has a usable reference to capability functions.
  */
-public interface IItemHandlerPM {
+public interface IItemHandlerVC {
     int getSlots();
 
     ItemStack getStackInSlot(int slot);
@@ -32,6 +32,6 @@ public interface IItemHandlerPM {
         Builder slotLimitFunction(Function<Integer, Integer> limitFunction);
         Builder itemValidFunction(BiPredicate<Integer, ItemStack> itemValidFunction);
         Builder contentsChangedFunction(Consumer<Integer> contentsChangedFunction);
-        IItemHandlerPM build();
+        IItemHandlerVC build();
     }
 }

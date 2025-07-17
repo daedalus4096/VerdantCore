@@ -1,6 +1,6 @@
 package com.verdantartifice.verdantcore.platform;
 
-import com.verdantartifice.verdantcore.common.capabilities.IItemHandlerPM;
+import com.verdantartifice.verdantcore.common.capabilities.IItemHandlerVC;
 import com.verdantartifice.verdantcore.common.menus.CalcinatorMenu;
 import com.verdantartifice.verdantcore.common.menus.RunecarvingTableMenu;
 import com.verdantartifice.verdantcore.common.menus.slots.CalcinatorFuelSlotForge;
@@ -20,7 +20,7 @@ import net.minecraftforge.items.SlotItemHandler;
 
 public class MenuServiceForge implements IMenuService {
     @Override
-    public Slot makeSlot(IItemHandlerPM itemHandler, int slot, int x, int y) {
+    public Slot makeSlot(IItemHandlerVC itemHandler, int slot, int x, int y) {
         if (itemHandler instanceof IItemHandler forgeHandler) {
             return new SlotItemHandler(forgeHandler, slot, x, y);
         } else {
@@ -29,7 +29,7 @@ public class MenuServiceForge implements IMenuService {
     }
 
     @Override
-    public Slot makeGenericResultSlot(Player player, IItemHandlerPM itemHandler, int slot, int x, int y) {
+    public Slot makeGenericResultSlot(Player player, IItemHandlerVC itemHandler, int slot, int x, int y) {
         if (itemHandler instanceof IItemHandler forgeHandler) {
             return new GenericResultSlotForge(player, forgeHandler, slot, x, y);
         } else {
@@ -38,7 +38,7 @@ public class MenuServiceForge implements IMenuService {
     }
 
     @Override
-    public Slot makeFilteredSlot(IItemHandlerPM itemHandler, int slot, int x, int y, FilteredSlotProperties properties) {
+    public Slot makeFilteredSlot(IItemHandlerVC itemHandler, int slot, int x, int y, FilteredSlotProperties properties) {
         if (itemHandler instanceof IItemHandler forgeHandler) {
             return new FilteredSlotForge(forgeHandler, slot, x, y, properties);
         } else {
@@ -47,7 +47,7 @@ public class MenuServiceForge implements IMenuService {
     }
 
     @Override
-    public Slot makeWandSlot(IItemHandlerPM itemHandler, int slot, int x, int y, boolean allowStaves) {
+    public Slot makeWandSlot(IItemHandlerVC itemHandler, int slot, int x, int y, boolean allowStaves) {
         if (itemHandler instanceof IItemHandler forgeHandler) {
             return new WandSlotForge(forgeHandler, slot, x, y, allowStaves);
         } else {
@@ -56,7 +56,7 @@ public class MenuServiceForge implements IMenuService {
     }
 
     @Override
-    public Slot makeCalcinatorFuelSlot(CalcinatorMenu menu, IItemHandlerPM itemHandler, int slot, int x, int y) {
+    public Slot makeCalcinatorFuelSlot(CalcinatorMenu menu, IItemHandlerVC itemHandler, int slot, int x, int y) {
         if (itemHandler instanceof IItemHandler forgeHandler) {
             return new CalcinatorFuelSlotForge(menu, forgeHandler, slot, x, y);
         } else {
@@ -65,7 +65,7 @@ public class MenuServiceForge implements IMenuService {
     }
 
     @Override
-    public Slot makeCalcinatorResultSlot(Player player, IItemHandlerPM itemHandler, int slot, int x, int y) {
+    public Slot makeCalcinatorResultSlot(Player player, IItemHandlerVC itemHandler, int slot, int x, int y) {
         if (itemHandler instanceof IItemHandler forgeHandler) {
             return new CalcinatorResultSlotForge(player, forgeHandler, slot, x, y);
         } else {
@@ -74,7 +74,7 @@ public class MenuServiceForge implements IMenuService {
     }
 
     @Override
-    public Slot makeInfernalFurnaceResultSlot(Player player, IItemHandlerPM itemHandler, int slot, int x, int y) {
+    public Slot makeInfernalFurnaceResultSlot(Player player, IItemHandlerVC itemHandler, int slot, int x, int y) {
         if (itemHandler instanceof IItemHandler forgeHandler) {
             return new InfernalFurnaceResultSlotForge(player, forgeHandler, slot, x, y);
         } else {
@@ -83,7 +83,7 @@ public class MenuServiceForge implements IMenuService {
     }
 
     @Override
-    public Slot makeConcocterResultSlot(Player player, IItemHandlerPM itemHandler, int slot, int x, int y) {
+    public Slot makeConcocterResultSlot(Player player, IItemHandlerVC itemHandler, int slot, int x, int y) {
         if (itemHandler instanceof IItemHandler forgeHandler) {
             return new ConcocterResultSlotForge(player, forgeHandler, slot, x, y);
         } else {
@@ -92,7 +92,7 @@ public class MenuServiceForge implements IMenuService {
     }
 
     @Override
-    public Slot makeRunecarvingResultSlot(RunecarvingTableMenu menu, Player player, IItemHandlerPM itemHandler, int slot, int x, int y) {
+    public Slot makeRunecarvingResultSlot(RunecarvingTableMenu menu, Player player, IItemHandlerVC itemHandler, int slot, int x, int y) {
         if (itemHandler instanceof IItemHandler forgeHandler) {
             return new RunecarvingResultSlotForge(menu, player, forgeHandler, slot, x, y);
         } else {

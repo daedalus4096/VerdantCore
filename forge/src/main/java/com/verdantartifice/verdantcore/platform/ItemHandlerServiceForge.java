@@ -1,8 +1,8 @@
 package com.verdantartifice.verdantcore.platform;
 
-import com.verdantartifice.verdantcore.common.capabilities.IItemHandlerPM;
+import com.verdantartifice.verdantcore.common.capabilities.IItemHandlerVC;
 import com.verdantartifice.verdantcore.common.capabilities.ItemStackHandlerPMForge;
-import com.verdantartifice.verdantcore.common.tiles.base.AbstractTilePM;
+import com.verdantartifice.verdantcore.common.tiles.base.AbstractTileVC;
 import com.verdantartifice.verdantcore.common.util.InvWrapperPMForge;
 import com.verdantartifice.verdantcore.common.util.SidedInvWrapperPMForge;
 import com.verdantartifice.verdantcore.platform.services.IItemHandlerService;
@@ -15,27 +15,27 @@ import org.jetbrains.annotations.Nullable;
 
 public class ItemHandlerServiceForge implements IItemHandlerService {
     @Override
-    public IItemHandlerPM create(@Nullable AbstractTilePM tile) {
+    public IItemHandlerVC create(@Nullable AbstractTileVC tile) {
         return new ItemStackHandlerPMForge(tile);
     }
 
     @Override
-    public IItemHandlerPM create(int size, @Nullable AbstractTilePM tile) {
+    public IItemHandlerVC create(int size, @Nullable AbstractTileVC tile) {
         return new ItemStackHandlerPMForge(size, tile);
     }
 
     @Override
-    public IItemHandlerPM create(NonNullList<ItemStack> stacks, @Nullable AbstractTilePM tile) {
+    public IItemHandlerVC create(NonNullList<ItemStack> stacks, @Nullable AbstractTileVC tile) {
         return new ItemStackHandlerPMForge(stacks, tile);
     }
 
     @Override
-    public IItemHandlerPM.Builder builder(NonNullList<ItemStack> stacks, @Nullable AbstractTilePM tile) {
+    public IItemHandlerVC.Builder builder(NonNullList<ItemStack> stacks, @Nullable AbstractTileVC tile) {
         return ItemStackHandlerPMForge.builder(stacks, tile);
     }
 
     @Override
-    public IItemHandlerPM wrap(Container container, @Nullable Direction side) {
+    public IItemHandlerVC wrap(Container container, @Nullable Direction side) {
         if (container instanceof WorldlyContainer worldlyContainer) {
             return new SidedInvWrapperPMForge(worldlyContainer, side);
         } else {

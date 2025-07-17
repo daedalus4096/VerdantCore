@@ -22,10 +22,10 @@ import javax.annotation.Nullable;
  * Middleware class for a tile entity for the mod.  Handles things like tile syncing and relevant
  * messages between the client and server regarding the tile.
  * 
- * @author Daedalus4096
+ * @author Daedalus4096F
  */
-public abstract class AbstractTilePM extends BlockEntity {
-    public AbstractTilePM(BlockEntityType<?> type, BlockPos pos, BlockState state) {
+public abstract class AbstractTileVC extends BlockEntity {
+    public AbstractTileVC(BlockEntityType<?> type, BlockPos pos, BlockState state) {
         super(type, pos, state);
     }
     
@@ -90,7 +90,7 @@ public abstract class AbstractTilePM extends BlockEntity {
      * 
      * @param nbt the received data
      * @param player the player whose client sent the given data
-     * @see AbstractTilePM#sendMessageToServer(CompoundTag)
+     * @see AbstractTileVC#sendMessageToServer(CompoundTag)
      */
     public void onMessageFromClient(CompoundTag nbt, @Nonnull ServerPlayer player) {
         // Do nothing by default
@@ -100,7 +100,7 @@ public abstract class AbstractTilePM extends BlockEntity {
      * Process a message sent from the server instance of this tile entity.
      * 
      * @param nbt the received data
-     * @see AbstractTilePM#sendMessageToClient(CompoundTag, ServerPlayer)
+     * @see AbstractTileVC#sendMessageToClient(CompoundTag, ServerPlayer)
      */
     public void onMessageFromServer(CompoundTag nbt) {
         // Do nothing by default

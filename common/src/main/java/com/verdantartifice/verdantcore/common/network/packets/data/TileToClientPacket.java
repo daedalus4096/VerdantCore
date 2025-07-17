@@ -2,7 +2,7 @@ package com.verdantartifice.verdantcore.common.network.packets.data;
 
 import com.verdantartifice.verdantcore.client.util.ClientUtils;
 import com.verdantartifice.verdantcore.common.network.packets.IMessageToClient;
-import com.verdantartifice.verdantcore.common.tiles.base.AbstractTilePM;
+import com.verdantartifice.verdantcore.common.tiles.base.AbstractTileVC;
 import com.verdantartifice.verdantcore.common.util.ResourceUtils;
 import commonnetwork.networking.data.PacketContext;
 import commonnetwork.networking.data.Side;
@@ -52,7 +52,7 @@ public class TileToClientPacket implements IMessageToClient {
         // Only process tile entities that are currently loaded into the world.  Safety check to prevent
         // resource thrashing from falsified packets.
         if (world != null && world.hasChunkAt(message.pos)) {
-            if (world.getBlockEntity(message.pos) instanceof AbstractTilePM tile) {
+            if (world.getBlockEntity(message.pos) instanceof AbstractTileVC tile) {
                 tile.onMessageFromServer(message.data == null ? new CompoundTag() : message.data);
             }
         }
