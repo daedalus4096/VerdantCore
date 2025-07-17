@@ -7,9 +7,8 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.StringRepresentable;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -32,7 +31,7 @@ public class KnowledgeType implements StringRepresentable {
     private final ResourceLocation iconLocation;
     private final Optional<Stat> trackerStatOpt;
     
-    private KnowledgeType(int id, @Nonnull ResourceLocation name, int progression, @Nonnull ResourceLocation iconLocation, @Nonnull Optional<Stat> trackerStatOpt) {
+    private KnowledgeType(int id, @NotNull ResourceLocation name, int progression, @NotNull ResourceLocation iconLocation, @NotNull Optional<Stat> trackerStatOpt) {
         this.id = id;
         this.name = name;
         this.progression = (short)progression;
@@ -53,17 +52,17 @@ public class KnowledgeType implements StringRepresentable {
         return this.progression;
     }
     
-    @Nonnull
+    @NotNull
     public ResourceLocation getIconLocation() {
         return this.iconLocation;
     }
 
-    @Nonnull
+    @NotNull
     public Optional<Stat> getTrackerStatOpt() {
         return this.trackerStatOpt;
     }
     
-    @Nonnull
+    @NotNull
     public String getNameTranslationKey() {
         return String.join(".", "knowledge_type", this.name.getNamespace(), this.name.getPath());
     }
