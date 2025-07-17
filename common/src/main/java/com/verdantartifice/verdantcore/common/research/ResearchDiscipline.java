@@ -4,6 +4,7 @@ import com.google.common.base.Preconditions;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.verdantartifice.verdantcore.Constants;
+import com.verdantartifice.verdantcore.common.capabilities.IPlayerKnowledge;
 import com.verdantartifice.verdantcore.common.network.PacketHandler;
 import com.verdantartifice.verdantcore.common.network.packets.data.SyncResearchFlagsPacket;
 import com.verdantartifice.verdantcore.common.research.keys.ResearchDisciplineKey;
@@ -56,21 +57,21 @@ public record ResearchDiscipline(ResearchDisciplineKey key, Optional<AbstractReq
         return this.unlockRequirementOpt().map(req -> req.isMetBy(player)).orElse(true);
     }
 
-    public boolean isHighlighted(Player player, ResourceKey<Registry<ResearchEntry>> registryKey) {
-        return this.getEntryStream(player.level().registryAccess(), registryKey).anyMatch(entry -> entry.isHighlighted(player));
+    public boolean isHighlighted(@Nonnull IPlayerKnowledge knowledgeCapability, @Nonnull RegistryAccess registryAccess, ResourceKey<Registry<ResearchEntry>> registryKey) {
+        return this.getEntryStream(registryAccess, registryKey).anyMatch(entry -> entry.isHighlighted(knowledgeCapability));
     }
 
-    public boolean isUnread(Player player, ResourceKey<Registry<ResearchEntry>> registryKey) {
-        return this.getEntryStream(player.level().registryAccess(), registryKey).anyMatch(entry -> entry.isUnread(player));
+    public boolean isUnread(@Nonnull IPlayerKnowledge knowledgeCapability, @Nonnull RegistryAccess registryAccess, ResourceKey<Registry<ResearchEntry>> registryKey) {
+        return this.getEntryStream(registryAccess, registryKey).anyMatch(entry -> entry.isUnread(knowledgeCapability, registryAccess));
     }
 
-    public int getUnreadEntryCount(Player player, ResourceKey<Registry<ResearchEntry>> registryKey) {
-        return this.getEntryStream(player.registryAccess(), registryKey).mapToInt(e -> e.isUnread(player) ? 1 : 0).sum();
+    public int getUnreadEntryCount(@Nonnull IPlayerKnowledge knowledgeCapability, @Nonnull RegistryAccess registryAccess, ResourceKey<Registry<ResearchEntry>> registryKey) {
+        return this.getEntryStream(registryAccess, registryKey).mapToInt(e -> e.isUnread(knowledgeCapability, registryAccess) ? 1 : 0).sum();
     }
 
-    public void markAllAsRead(Player player, ResourceKey<Registry<ResearchEntry>> registryKey) {
-        this.getEntryStream(player.registryAccess(), registryKey).filter(e -> e.isUnread(player)).forEach(e -> {
-            e.markRead(player);
+    public void markAllAsRead(Player player, @Nonnull IPlayerKnowledge knowledgeCapability, @Nonnull RegistryAccess registryAccess, ResourceKey<Registry<ResearchEntry>> registryKey) {
+        this.getEntryStream(player.registryAccess(), registryKey).filter(e -> e.isUnread(knowledgeCapability, registryAccess)).forEach(e -> {
+            e.markRead(knowledgeCapability);
             if (player.level().isClientSide()) {
                 PacketHandler.sendToServer(new SyncResearchFlagsPacket(player, e.key()));
             }

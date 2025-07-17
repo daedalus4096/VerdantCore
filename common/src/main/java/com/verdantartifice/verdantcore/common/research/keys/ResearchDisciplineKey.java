@@ -3,6 +3,7 @@ package com.verdantartifice.verdantcore.common.research.keys;
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
+import com.verdantartifice.verdantcore.common.capabilities.IPlayerKnowledge;
 import com.verdantartifice.verdantcore.common.misc.IconDefinition;
 import com.verdantartifice.verdantcore.common.research.ResearchDiscipline;
 import com.verdantartifice.verdantcore.common.research.requirements.RequirementCategory;
@@ -17,6 +18,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.apache.commons.lang3.mutable.MutableBoolean;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
@@ -96,21 +99,16 @@ public class ResearchDisciplineKey extends AbstractResearchKey<ResearchDisciplin
     }
 
     @Override
-    public boolean isKnownBy(Player player) {
+    public boolean isKnownBy(@Nullable Player player, @NotNull IPlayerKnowledge knowledgeCapability) {
         if (player == null) {
             return false;
         }
         RegistryAccess registryAccess = player.level().registryAccess();
         Holder.Reference<ResearchDiscipline> discipline = registryAccess.registryOrThrow(this.registryKey).getHolderOrThrow(this.rootKey);
-        MutableBoolean retVal = new MutableBoolean(false);
-        discipline.value().unlockRequirementOpt().ifPresentOrElse(req -> {
-            // If the discipline does have an unlock requirement, then the discipline is only known if that requirement is met
-            retVal.setValue(req.isMetBy(player));
-        }, () -> {
-            // If the discipline has no unlock requirement, then it's known to the player
-            retVal.setTrue();
-        });
-        return retVal.booleanValue();
+
+        // If the discipline does have an unlock requirement, then the discipline is only known if that requirement is met
+        // If the discipline has no unlock requirement, then it's known to the player
+        return discipline.value().unlockRequirementOpt().map(req -> req.isMetBy(player)).orElse(true);
     }
     
     @Nonnull

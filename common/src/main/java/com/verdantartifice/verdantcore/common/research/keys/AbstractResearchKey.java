@@ -1,6 +1,7 @@
 package com.verdantartifice.verdantcore.common.research.keys;
 
 import com.mojang.serialization.Codec;
+import com.verdantartifice.verdantcore.common.capabilities.IPlayerKnowledge;
 import com.verdantartifice.verdantcore.common.misc.IconDefinition;
 import com.verdantartifice.verdantcore.common.research.requirements.RequirementCategory;
 import com.verdantartifice.verdantcore.platform.ServicesVC;
@@ -8,9 +9,8 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
-import org.apache.commons.lang3.mutable.MutableBoolean;
-
-import javax.annotation.Nullable;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 /**
  * Base class representing an atom in the research hierarchy.
@@ -46,16 +46,11 @@ public abstract class AbstractResearchKey<T extends AbstractResearchKey<T>> {
     
     public abstract IconDefinition getIcon(RegistryAccess registryAccess);
     
-    public boolean isKnownBy(@Nullable Player player) {
+    public boolean isKnownBy(@Nullable Player player, @NotNull IPlayerKnowledge knowledgeCapability) {
         if (player == null) {
             return false;
-        } else {
-            MutableBoolean retVal = new MutableBoolean(false);
-            ServicesVC.CAPABILITIES.knowledge(player).ifPresent(knowledge -> {
-                retVal.setValue(knowledge.isResearchComplete(player.level().registryAccess(), this));
-            });
-            return retVal.booleanValue();
         }
+        return knowledgeCapability.isResearchComplete(player.level().registryAccess(), this);
     }
     
     public static AbstractResearchKey<?> fromNetwork(RegistryFriendlyByteBuf buf) {

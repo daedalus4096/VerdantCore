@@ -20,7 +20,7 @@ public class RequirementsVC {
     public static final IRegistryItem<RequirementType<?>, RequirementType<ItemStackRequirement>> ITEM_STACK = register("item_stack", () -> ItemStackRequirement.CODEC, () -> ItemStackRequirement.STREAM_CODEC);
     public static final IRegistryItem<RequirementType<?>, RequirementType<ItemTagRequirement>> ITEM_TAG = register("item_tag", () -> ItemTagRequirement.CODEC, () -> ItemTagRequirement.STREAM_CODEC);
     public static final IRegistryItem<RequirementType<?>, RequirementType<StatRequirement>> STAT = register("stat", () -> StatRequirement.CODEC, () -> StatRequirement.STREAM_CODEC);
-    public static final IRegistryItem<RequirementType<?>, RequirementType<ExpertiseRequirement>> EXPERTISE = register("expertise", ExpertiseRequirement::codec, ExpertiseRequirement::streamCodec);   
+    public static final IRegistryItem<RequirementType<?>, RequirementType<ExpertiseRequirement>> EXPERTISE = register("expertise", () -> ExpertiseRequirement.CODEC, () -> ExpertiseRequirement.STREAM_CODEC);
     public static final IRegistryItem<RequirementType<?>, RequirementType<VanillaItemUsedStatRequirement>> VANILLA_ITEM_USED_STAT = register("vanilla_item_used_stat", () -> VanillaItemUsedStatRequirement.CODEC, () -> VanillaItemUsedStatRequirement.STREAM_CODEC);
     public static final IRegistryItem<RequirementType<?>, RequirementType<VanillaCustomStatRequirement>> VANILLA_CUSTOM_STAT = register("vanilla_custom_stat", () -> VanillaCustomStatRequirement.CODEC, () -> VanillaCustomStatRequirement.STREAM_CODEC);
     public static final IRegistryItem<RequirementType<?>, RequirementType<AndRequirement>> AND = register("and", AndRequirement::codec, AndRequirement::streamCodec);

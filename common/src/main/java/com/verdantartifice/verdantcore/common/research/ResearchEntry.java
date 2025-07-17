@@ -9,7 +9,6 @@ import com.verdantartifice.verdantcore.common.research.keys.ResearchDisciplineKe
 import com.verdantartifice.verdantcore.common.research.keys.ResearchEntryKey;
 import com.verdantartifice.verdantcore.common.util.ResourceUtils;
 import com.verdantartifice.verdantcore.common.util.StreamCodecUtils;
-import com.verdantartifice.verdantcore.platform.ServicesVC;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -21,8 +20,8 @@ import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.ItemLike;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -114,32 +113,28 @@ public record ResearchEntry(ResearchEntryKey key, Optional<ResearchDisciplineKey
         return this.isFinaleFor(new ResearchDisciplineKey(registryKey, discipline));
     }
     
-    private IPlayerKnowledge getKnowledge(@Nonnull Player player) {
-        return ServicesVC.CAPABILITIES.knowledge(player).orElseThrow(() -> new IllegalStateException("No knowledge provider for player"));
+    public boolean isNew(@NotNull IPlayerKnowledge knowledgeCapability) {
+        return knowledgeCapability.hasResearchFlag(this.key(), IPlayerKnowledge.ResearchFlag.NEW);
     }
     
-    public boolean isNew(@Nonnull Player player) {
-        return this.getKnowledge(player).hasResearchFlag(this.key(), IPlayerKnowledge.ResearchFlag.NEW);
-    }
-    
-    public boolean isUpdated(@Nonnull Player player) {
-        return this.getKnowledge(player).hasResearchFlag(this.key(), IPlayerKnowledge.ResearchFlag.UPDATED);
+    public boolean isUpdated(@NotNull IPlayerKnowledge knowledgeCapability) {
+        return knowledgeCapability.hasResearchFlag(this.key(), IPlayerKnowledge.ResearchFlag.UPDATED);
     }
 
-    public boolean isHighlighted(@Nonnull Player player) {
-        return this.getKnowledge(player).hasResearchFlag(this.key(), IPlayerKnowledge.ResearchFlag.HIGHLIGHT);
+    public boolean isHighlighted(@NotNull IPlayerKnowledge knowledgeCapability) {
+        return knowledgeCapability.hasResearchFlag(this.key(), IPlayerKnowledge.ResearchFlag.HIGHLIGHT);
     }
 
-    public boolean isUnread(@Nonnull Player player) {
-        return !this.getKnowledge(player).hasResearchFlag(this.key(), IPlayerKnowledge.ResearchFlag.READ) && this.isAvailable(player) &&
-                (!this.flags().hidden() || this.getKnowledge(player).getResearchStage(this.key()) >= 0);
+    public boolean isUnread(@NotNull Player player, @NotNull IPlayerKnowledge knowledgeCapability) {
+        return !knowledgeCapability.hasResearchFlag(this.key(), IPlayerKnowledge.ResearchFlag.READ) && this.isAvailable(player, knowledgeCapability) &&
+                (!this.flags().hidden() || knowledgeCapability.getResearchStage(this.key()) >= 0);
     }
 
-    public void markRead(@Nonnull Player player) {
-        this.getKnowledge(player).addResearchFlag(this.key(), IPlayerKnowledge.ResearchFlag.READ);
-        this.getKnowledge(player).removeResearchFlag(this.key(), IPlayerKnowledge.ResearchFlag.NEW);
-        this.getKnowledge(player).removeResearchFlag(this.key(), IPlayerKnowledge.ResearchFlag.UPDATED);
-        this.getKnowledge(player).removeResearchFlag(this.key(), IPlayerKnowledge.ResearchFlag.HIGHLIGHT);
+    public void markRead(@NotNull IPlayerKnowledge knowledgeCapability) {
+        knowledgeCapability.addResearchFlag(this.key(), IPlayerKnowledge.ResearchFlag.READ);
+        knowledgeCapability.removeResearchFlag(this.key(), IPlayerKnowledge.ResearchFlag.NEW);
+        knowledgeCapability.removeResearchFlag(this.key(), IPlayerKnowledge.ResearchFlag.UPDATED);
+        knowledgeCapability.removeResearchFlag(this.key(), IPlayerKnowledge.ResearchFlag.HIGHLIGHT);
     }
 
     /**
@@ -147,54 +142,54 @@ public record ResearchEntry(ResearchEntryKey key, Optional<ResearchDisciplineKey
      * containing that flag option.
      *
      * @param player the player whose data is to be queried
+     * @param knowledgeCapability the knowledge capability of the player whose data is to be queried
      * @return true whether this entry should be considered read, false otherwise
      */
-    public boolean isReadByDefault(@Nonnull Player player) {
-        return !this.isAvailable(player) || (!this.isNew(player) && !this.isUpdated(player) && !this.isUnknown(player));
+    public boolean isReadByDefault(@NotNull Player player, @NotNull IPlayerKnowledge knowledgeCapability) {
+        return !this.isAvailable(player, knowledgeCapability) ||
+                (!this.isNew(knowledgeCapability) && !this.isUpdated(knowledgeCapability) && !this.isUnknown(player, knowledgeCapability));
     }
 
-    public boolean isComplete(@Nonnull Player player) {
-        return this.getKnowledge(player).getResearchStatus(player.level().registryAccess(), this.key()) == IPlayerKnowledge.ResearchStatus.COMPLETE;
+    public boolean isComplete(@NotNull IPlayerKnowledge knowledgeCapability, @NotNull RegistryAccess registryAccess) {
+        return knowledgeCapability.getResearchStatus(registryAccess, this.key()) == IPlayerKnowledge.ResearchStatus.COMPLETE;
     }
     
-    public boolean isInProgress(@Nonnull Player player) {
-        return this.getKnowledge(player).getResearchStatus(player.level().registryAccess(), this.key()) == IPlayerKnowledge.ResearchStatus.IN_PROGRESS;
+    public boolean isInProgress(@NotNull IPlayerKnowledge knowledgeCapability, @NotNull RegistryAccess registryAccess) {
+        return knowledgeCapability.getResearchStatus(registryAccess, this.key()) == IPlayerKnowledge.ResearchStatus.IN_PROGRESS;
     }
     
-    public boolean isAvailable(@Nonnull Player player) {
-        return this.parents.isEmpty() || this.parents.stream().allMatch(key -> key.isKnownBy(player));
+    public boolean isAvailable(@NotNull Player player, @NotNull IPlayerKnowledge knowledgeCapability) {
+        return this.parents.isEmpty() || this.parents.stream().allMatch(key -> key.isKnownBy(player, knowledgeCapability));
     }
     
-    public boolean isUpcoming(@Nonnull Player player, @Nonnull Optional<TagKey<ResearchEntry>> opaqueTagOpt) {
-        Registry<ResearchEntry> registry = player.level().registryAccess().registryOrThrow(this.key.getRegistryKey());
+    public boolean isUpcoming(@NotNull Player player, @NotNull IPlayerKnowledge knowledgeCapability, @NotNull Optional<TagKey<ResearchEntry>> opaqueTagOpt) {
+        RegistryAccess registryAccess = player.level().registryAccess();
+        Registry<ResearchEntry> registry = registryAccess.registryOrThrow(this.key.getRegistryKey());
         return this.parents.stream().map(k -> registry.getHolder(k.getRootKey())).noneMatch(opt -> {
-            return opt.isPresent() && ((opaqueTagOpt.isPresent() && opt.get().is(opaqueTagOpt.get()) && !opt.get().value().key().isKnownBy(player)) || !opt.get().value().isAvailable(player));
+            return opt.isPresent() && ((opaqueTagOpt.isPresent() && opt.get().is(opaqueTagOpt.get()) && !opt.get().value().key().isKnownBy(player, knowledgeCapability)) || !opt.get().value().isAvailable(player, knowledgeCapability));
         });
     }
 
-    public boolean isVisible(@Nonnull Player player, @Nonnull Optional<TagKey<ResearchEntry>> opaqueTagOpt) {
-        return this.isAvailable(player) || this.isUpcoming(player, opaqueTagOpt);
+    public boolean isVisible(@NotNull Player player, @NotNull IPlayerKnowledge knowledgeCapability, @NotNull Optional<TagKey<ResearchEntry>> opaqueTagOpt) {
+        return this.isAvailable(player, knowledgeCapability) || this.isUpcoming(player, knowledgeCapability, opaqueTagOpt);
     }
 
-    public boolean isUnknown(@Nonnull Player player) {
-        return this.getKnowledge(player).getResearchStatus(player.registryAccess(), this.key()) == IPlayerKnowledge.ResearchStatus.UNKNOWN;
+    public boolean isUnknown(@NotNull Player player, @NotNull IPlayerKnowledge knowledgeCapability) {
+        return knowledgeCapability.getResearchStatus(player.level().registryAccess(), this.key()) == IPlayerKnowledge.ResearchStatus.UNKNOWN;
     }
     
-    @Nonnull
+    @NotNull
     public Set<ResourceLocation> getAllRecipeIds() {
         return Stream.concat(this.stages.stream().flatMap(stage -> stage.recipes().stream()), this.addenda.stream().flatMap(addendum -> addendum.recipes().stream())).collect(Collectors.toSet());
     }
     
-    @Nonnull
-    public Set<ResourceLocation> getKnownRecipeIds(@Nonnull Player player) {
+    @NotNull
+    public Set<ResourceLocation> getKnownRecipeIds(@NotNull Player player, @NotNull IPlayerKnowledge knowledge, @NotNull RegistryAccess registryAccess) {
         Set<ResourceLocation> retVal = new HashSet<>();
         if (this.stages().isEmpty()) {
             // If this research entry has no stages, then it can't have any recipes, so just abort
             return retVal;
         }
-        
-        IPlayerKnowledge knowledge = this.getKnowledge(player);
-        RegistryAccess registryAccess = player.level().registryAccess();
         
         ResearchStage currentStage = null;
         int currentStageNum = knowledge.getResearchStage(this.key);

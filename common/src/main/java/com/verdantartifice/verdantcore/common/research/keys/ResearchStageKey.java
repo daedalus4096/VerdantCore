@@ -2,12 +2,12 @@ package com.verdantartifice.verdantcore.common.research.keys;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.verdantartifice.verdantcore.common.capabilities.IPlayerKnowledge;
 import com.verdantartifice.verdantcore.common.misc.IconDefinition;
 import com.verdantartifice.verdantcore.common.registries.RegistryKeysVC;
 import com.verdantartifice.verdantcore.common.research.ResearchEntry;
 import com.verdantartifice.verdantcore.common.research.requirements.RequirementCategory;
 import com.verdantartifice.verdantcore.common.util.ResourceUtils;
-import com.verdantartifice.verdantcore.platform.ServicesVC;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -16,7 +16,8 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.player.Player;
-import org.apache.commons.lang3.mutable.MutableBoolean;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
 
@@ -90,18 +91,14 @@ public class ResearchStageKey extends AbstractResearchKey<ResearchStageKey> {
     }
 
     @Override
-    public boolean isKnownBy(Player player) {
-        // Rather than testing if the research entry is complete (because it probably won't be if you're using
-        // this key), test if the research stage is at least as high as the one specified in this key.
+    public boolean isKnownBy(@Nullable Player player, @NotNull IPlayerKnowledge knowledge) {
         if (player == null) {
             return false;
-        } else {
-            MutableBoolean retVal = new MutableBoolean(false);
-            ServicesVC.CAPABILITIES.knowledge(player).ifPresent(knowledge -> {
-                int currentStage = knowledge.getResearchStage(this.strippedKey) + 1;
-                retVal.setValue(currentStage >= this.getStage());
-            });
-            return retVal.booleanValue();
         }
+
+        // Rather than testing if the research entry is complete (because it probably won't be if you're using
+        // this key), test if the research stage is at least as high as the one specified in this key.
+        int currentStage = knowledge.getResearchStage(this.strippedKey) + 1;
+        return currentStage >= this.getStage();
     }
 }
