@@ -9,6 +9,7 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -19,6 +20,7 @@ import net.minecraft.world.level.ItemLike;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Reward that grants a specific item stack.
@@ -73,6 +75,17 @@ public class ItemReward extends AbstractReward<ItemReward> {
             itemName.withStyle(ChatFormatting.ITALIC);
         }
         return Component.translatable("label.verdantcore.research_table.reward", this.stack.getCount(), itemName);
+    }
+
+    @Override
+    public ResourceLocation getIconLocation(Player player) {
+        // FIXME Stub
+        return null;
+    }
+
+    @Override
+    public Optional<Component> getAmountText() {
+        return Optional.empty();
     }
 
     @Override

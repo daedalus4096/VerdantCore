@@ -6,11 +6,13 @@ import io.netty.buffer.ByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.util.ExtraCodecs;
 import net.minecraft.world.entity.player.Player;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Reward that grants experience points.
@@ -46,6 +48,17 @@ public class ExperienceReward extends AbstractReward<ExperienceReward> {
     public Component getDescription(Player player) {
         Component label = Component.translatable("label.verdantcore.experience.points");
         return Component.translatable("label.verdantcore.research_table.reward", this.points, label);
+    }
+
+    @Override
+    public ResourceLocation getIconLocation(Player player) {
+        // FIXME Stub
+        return null;
+    }
+
+    @Override
+    public Optional<Component> getAmountText() {
+        return Optional.of(Component.literal(Integer.toString(this.points)));
     }
 
     @Override

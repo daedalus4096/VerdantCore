@@ -10,6 +10,7 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
@@ -23,6 +24,7 @@ import net.minecraft.world.level.storage.loot.parameters.LootContextParamSets;
 import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Reward that grants random items from a loot table.
@@ -87,6 +89,17 @@ public class LootTableReward extends AbstractReward<LootTableReward> {
     @Override
     public Component getDescription(Player player) {
         return Component.translatable("label.verdantcore.research_table.reward", this.pullCount, Component.translatable(this.descTranslationKey));
+    }
+
+    @Override
+    public ResourceLocation getIconLocation(Player player) {
+        // FIXME Stub
+        return null;
+    }
+
+    @Override
+    public Optional<Component> getAmountText() {
+        return Optional.of(Component.literal(Integer.toString(this.pullCount)));
     }
 
     @Override

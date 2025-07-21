@@ -14,7 +14,7 @@ import net.minecraft.world.entity.player.Player;
  * 
  * @author Daedalus4096
  */
-public abstract class AbstractReward<T extends AbstractReward<T>> {
+public abstract class AbstractReward<T extends AbstractReward<T>> implements IReward {
     public static Codec<AbstractReward<?>> dispatchCodec() {
         return ServicesVC.REWARD_TYPES_REGISTRY.codec().dispatch("reward_type", AbstractReward::getType, RewardType::codec);
     }
