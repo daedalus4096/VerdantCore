@@ -1,5 +1,7 @@
 package com.verdantartifice.verdantcore.common.registries;
 
+import com.verdantartifice.verdantcore.common.books.BookDefinition;
+import com.verdantartifice.verdantcore.common.books.BookLanguage;
 import com.verdantartifice.verdantcore.common.research.keys.ResearchKeyType;
 import com.verdantartifice.verdantcore.common.research.requirements.RequirementType;
 import com.verdantartifice.verdantcore.common.research.topics.ResearchTopicType;
@@ -16,6 +18,8 @@ import net.minecraft.resources.ResourceKey;
  * @author Daedalus4096
  */
 public class RegistryKeysVC {
+    public static final ResourceKey<Registry<BookDefinition>> BOOKS = key("books");
+    public static final ResourceKey<Registry<BookLanguage>> BOOK_LANGUAGES = key("book_languages");
     public static final ResourceKey<Registry<RequirementType<?>>> REQUIREMENT_TYPES = key("requirement_types");
     public static final ResourceKey<Registry<ResearchKeyType<?>>> RESEARCH_KEY_TYPES = key("research_key_types");
     public static final ResourceKey<Registry<RewardType<?>>> REWARD_TYPES = key("reward_types");
