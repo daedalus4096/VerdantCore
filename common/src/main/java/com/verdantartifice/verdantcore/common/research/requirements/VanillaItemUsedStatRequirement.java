@@ -4,7 +4,7 @@ import com.google.common.base.Preconditions;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.verdantartifice.verdantcore.client.util.ClientUtils;
+import com.verdantartifice.verdantcore.client.util.ClientUtilsVC;
 import com.verdantartifice.verdantcore.common.misc.IconDefinition;
 import com.verdantartifice.verdantcore.platform.ServicesVC;
 import io.netty.buffer.ByteBuf;
@@ -86,7 +86,7 @@ public class VanillaItemUsedStatRequirement extends AbstractRequirement<VanillaI
         if (player instanceof ServerPlayer serverPlayer) {
             return serverPlayer.getStats().getValue(this.stat);
         } else if (ServicesVC.PLATFORM.isClientDist()) {
-            return ClientUtils.getStatsCounter().getValue(this.stat);
+            return ClientUtilsVC.getStatsCounter().getValue(this.stat);
         } else {
             throw new IllegalStateException("Player is neither server nor client side!");
         }

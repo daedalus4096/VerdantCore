@@ -3,7 +3,7 @@ package com.verdantartifice.verdantcore.common.research.requirements;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.verdantartifice.verdantcore.client.util.ClientUtils;
+import com.verdantartifice.verdantcore.client.util.ClientUtilsVC;
 import com.verdantartifice.verdantcore.common.misc.IconDefinition;
 import com.verdantartifice.verdantcore.platform.ServicesVC;
 import io.netty.buffer.ByteBuf;
@@ -90,7 +90,7 @@ public class VanillaCustomStatRequirement extends AbstractRequirement<VanillaCus
         if (player instanceof ServerPlayer serverPlayer) {
             return serverPlayer.getStats().getValue(this.getStat());
         } else if (ServicesVC.PLATFORM.isClientDist()) {
-            return ClientUtils.getStatsCounter().getValue(this.getStat());
+            return ClientUtilsVC.getStatsCounter().getValue(this.getStat());
         } else {
             throw new IllegalStateException("Player is neither server nor client side!");
         }

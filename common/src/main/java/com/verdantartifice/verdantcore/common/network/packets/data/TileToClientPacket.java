@@ -1,6 +1,6 @@
 package com.verdantartifice.verdantcore.common.network.packets.data;
 
-import com.verdantartifice.verdantcore.client.util.ClientUtils;
+import com.verdantartifice.verdantcore.client.util.ClientUtilsVC;
 import com.verdantartifice.verdantcore.common.network.packets.IMessageToClient;
 import com.verdantartifice.verdantcore.common.tiles.base.AbstractTileVC;
 import com.verdantartifice.verdantcore.common.util.ResourceUtils;
@@ -48,7 +48,7 @@ public class TileToClientPacket implements IMessageToClient {
     @SuppressWarnings("deprecation")
     public static void onMessage(PacketContext<TileToClientPacket> ctx) {
         TileToClientPacket message = ctx.message();
-        Level world = Side.CLIENT.equals(ctx.side()) ? ClientUtils.getCurrentLevel() : null;
+        Level world = Side.CLIENT.equals(ctx.side()) ? ClientUtilsVC.getCurrentLevel() : null;
         // Only process tile entities that are currently loaded into the world.  Safety check to prevent
         // resource thrashing from falsified packets.
         if (world != null && world.hasChunkAt(message.pos)) {
