@@ -16,7 +16,6 @@ public class ResearchTopicTypesVC {
     public static final IRegistryItem<ResearchTopicType<?>, ResearchTopicType<DisciplineResearchTopic>> DISCIPLINE = register("discipline", DisciplineResearchTopic.CODEC, DisciplineResearchTopic.STREAM_CODEC);
     public static final IRegistryItem<ResearchTopicType<?>, ResearchTopicType<EnchantmentResearchTopic>> ENCHANTMENT = register("enchantment", EnchantmentResearchTopic.CODEC, EnchantmentResearchTopic.STREAM_CODEC);
     public static final IRegistryItem<ResearchTopicType<?>, ResearchTopicType<EntryResearchTopic>> RESEARCH_ENTRY = register("research_entry", EntryResearchTopic.CODEC, EntryResearchTopic.STREAM_CODEC);
-    public static final IRegistryItem<ResearchTopicType<?>, ResearchTopicType<MainIndexResearchTopic>> MAIN_INDEX = register("main_index", MainIndexResearchTopic.CODEC, MainIndexResearchTopic.STREAM_CODEC);
     public static final IRegistryItem<ResearchTopicType<?>, ResearchTopicType<OtherResearchTopic>> OTHER = register("other", OtherResearchTopic.CODEC, OtherResearchTopic.STREAM_CODEC);
 
     protected static <T extends AbstractResearchTopic<T>> IRegistryItem<ResearchTopicType<?>, ResearchTopicType<T>> register(String id, MapCodec<T> codec, StreamCodec<? super RegistryFriendlyByteBuf, T> streamCodec) {

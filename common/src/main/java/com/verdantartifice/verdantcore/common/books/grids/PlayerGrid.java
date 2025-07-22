@@ -3,7 +3,7 @@ package com.verdantartifice.verdantcore.common.books.grids;
 import com.verdantartifice.verdantcore.common.books.BookLanguage;
 import com.verdantartifice.verdantcore.common.books.LinguisticsManager;
 import com.verdantartifice.verdantcore.common.network.PacketHandler;
-import com.verdantartifice.verdantcore.common.network.packets.scribe_table.UnlockGridNodeActionPacket;
+import com.verdantartifice.verdantcore.common.network.packets.linguistics.UnlockGridNodeActionPacket;
 import com.verdantartifice.verdantcore.common.registries.RegistryKeysVC;
 import com.verdantartifice.verdantcore.common.rewards.IReward;
 import com.verdantartifice.verdantcore.platform.ServicesVC;
