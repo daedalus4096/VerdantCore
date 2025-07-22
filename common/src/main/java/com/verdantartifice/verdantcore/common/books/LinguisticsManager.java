@@ -4,13 +4,13 @@ import com.verdantartifice.verdantcore.common.advancements.critereon.CriteriaTri
 import com.verdantartifice.verdantcore.common.books.grids.GridDefinition;
 import com.verdantartifice.verdantcore.common.books.grids.PlayerGrid;
 import com.verdantartifice.verdantcore.common.capabilities.IPlayerLinguistics;
+import com.verdantartifice.verdantcore.common.stats.Stat;
 import com.verdantartifice.verdantcore.common.stats.StatsManager;
-import com.verdantartifice.verdantcore.common.stats.StatsPM;
-import com.verdantartifice.verdantcore.common.tags.BookLanguageTagsPM;
 import com.verdantartifice.verdantcore.platform.ServicesVC;
 import net.minecraft.core.Holder;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.TagKey;
 import net.minecraft.util.Mth;
 import net.minecraft.world.entity.player.Player;
 import org.apache.commons.lang3.mutable.MutableInt;
@@ -37,6 +37,7 @@ public class LinguisticsManager {
     private static final Set<UUID> SYNC_SET = ConcurrentHashMap.newKeySet();
     
     protected static final Map<ResourceLocation, GridDefinition> GRID_DEFINITIONS = new HashMap<>();
+    protected static final Map<TagKey<BookLanguage>, Stat> LANGUAGE_TAG_STATS = new HashMap<>();
 
     public static boolean isSyncScheduled(@Nullable Player player) {
         if (player == null) {
@@ -44,6 +45,18 @@ public class LinguisticsManager {
         } else {
             return SYNC_SET.remove(player.getUUID());
         }
+    }
+
+    public static void registerLanguageTagStat(TagKey<BookLanguage> tag, Stat stat) {
+        LANGUAGE_TAG_STATS.put(tag, stat);
+    }
+
+    private static void incrementLanguageTagStats(Player player, Holder<BookLanguage> languageHolder) {
+        LANGUAGE_TAG_STATS.entrySet().forEach(entry -> {
+            if (languageHolder.is(entry.getKey())) {
+                StatsManager.incrementValue(player, entry.getValue());
+            }
+        });
     }
     
     public static void scheduleSync(@Nullable Player player) {
@@ -56,19 +69,19 @@ public class LinguisticsManager {
         // All players know the default language automatically
         if (language == null) {
             return false;
-        } else if (language.is(BookLanguagesPM.DEFAULT)) {
+        } else if (language.is(BookLanguagesVC.DEFAULT)) {
             return true;
         }
 
-        return Services.CAPABILITIES.linguistics(player).map(linguistics -> linguistics.isLanguageKnown(language.value().languageId())).orElse(false);
+        return ServicesVC.CAPABILITIES.linguistics(player).map(linguistics -> linguistics.isLanguageKnown(language.value().languageId())).orElse(false);
     }
     
     public static void markRead(@Nullable Player player, @Nullable Holder<BookDefinition> book, @Nullable Holder<BookLanguage> language) {
         if (player != null && book != null && language != null) {
-            Services.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
-                if (linguistics.markRead(book.value().bookId(), language.value().languageId()) && language.is(BookLanguageTagsPM.LINGUISTICS_UNLOCK)) {
-                    // If the book/language combination is new and the language should unlock the linguistics research entry, increment the unique books statistic
-                    StatsManager.incrementValue(player, StatsPM.ANCIENT_BOOKS_READ);
+            ServicesVC.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
+                if (linguistics.markRead(book.value().bookId(), language.value().languageId())) {
+                    // FIXME If the book/language combination is new and the language should unlock the linguistics research entry, increment the unique books statistic
+                    incrementLanguageTagStats(player, language);
                 }
                 scheduleSync(player);
             });
@@ -78,7 +91,7 @@ public class LinguisticsManager {
     public static int getComprehension(@Nullable Player player, @Nullable Holder<BookLanguage> language) {
         MutableInt retVal = new MutableInt(0);
         if (player != null && language != null) {
-            Services.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
+            ServicesVC.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
                 retVal.setValue(linguistics.getComprehension(language.value().languageId()));
             });
         }
@@ -87,7 +100,7 @@ public class LinguisticsManager {
     
     public static void setComprehension(@Nullable Player player, @Nullable Holder<BookLanguage> language, int comprehension) {
         if (player != null && language != null) {
-            Services.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
+            ServicesVC.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
                 int finalValue = Mth.clamp(comprehension, 0, language.value().complexity());
                 linguistics.setComprehension(language.value().languageId(), finalValue);
                 scheduleSync(player);
@@ -104,7 +117,7 @@ public class LinguisticsManager {
     
     public static void incrementComprehension(@Nullable Player player, @Nullable Holder<BookLanguage> language, int delta) {
         if (player != null && language != null) {
-            Services.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
+            ServicesVC.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
                 int finalValue = Mth.clamp(linguistics.getComprehension(language.value().languageId()) + delta, 0, language.value().complexity());
                 linguistics.setComprehension(language.value().languageId(), finalValue);
                 scheduleSync(player);
@@ -118,7 +131,7 @@ public class LinguisticsManager {
     public static int getVocabulary(@Nullable Player player, @Nullable Holder<BookLanguage> language) {
         MutableInt retVal = new MutableInt(0);
         if (player != null && language != null) {
-            Services.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
+            ServicesVC.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
                 retVal.setValue(linguistics.getVocabulary(language.value().languageId()));
             });
         }
@@ -127,7 +140,7 @@ public class LinguisticsManager {
     
     public static void setVocabulary(@Nullable Player player, @Nullable Holder<BookLanguage> language, int vocabulary) {
         if (player != null && language != null) {
-            Services.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
+            ServicesVC.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
                 linguistics.setVocabulary(language.value().languageId(), Math.max(0, vocabulary));
                 scheduleSync(player);
             });
@@ -140,7 +153,7 @@ public class LinguisticsManager {
     
     public static void incrementVocabulary(@Nullable Player player, @Nullable Holder<BookLanguage> language, int delta) {
         if (player != null && language != null) {
-            Services.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
+            ServicesVC.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
                 linguistics.setVocabulary(language.value().languageId(), Math.max(0, linguistics.getVocabulary(language.value().languageId()) + delta));
                 scheduleSync(player);
             });
@@ -150,7 +163,7 @@ public class LinguisticsManager {
     public static int getTimesStudied(@Nullable Player player, @Nullable Holder<BookDefinition> book, @Nullable Holder<BookLanguage> language) {
         MutableInt retVal = new MutableInt(0);
         if (player != null && book != null && language != null) {
-            Services.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
+            ServicesVC.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
                 retVal.setValue(linguistics.getTimesStudied(book.value().bookId(), language.value().languageId()));
             });
         }
@@ -159,7 +172,7 @@ public class LinguisticsManager {
     
     public static void setTimesStudied(@Nullable Player player, @Nullable Holder<BookDefinition> book, @Nullable Holder<BookLanguage> language, int studyCount) {
         if (player != null && book != null && language != null) {
-            Services.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
+            ServicesVC.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
                 linguistics.setTimesStudied(book.value().bookId(), language.value().languageId(), Math.max(0, studyCount));
                 scheduleSync(player);
             });
@@ -172,20 +185,20 @@ public class LinguisticsManager {
     
     public static void incrementTimesStudied(@Nullable Player player, @Nullable Holder<BookDefinition> book, @Nullable Holder<BookLanguage> language, int delta) {
         if (player != null && book != null && language != null) {
-            Services.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
+            ServicesVC.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
                 linguistics.setTimesStudied(book.value().bookId(), language.value().languageId(), Math.max(0, linguistics.getTimesStudied(book.value().bookId(), language.value().languageId()) + delta));
                 scheduleSync(player);
             });
         }
     }
     
-    public static ScribeTableMode getScribeTableMode(@Nullable Player player) {
-        return Services.CAPABILITIES.linguistics(player).map(IPlayerLinguistics::getScribeTableMode).orElse(ScribeTableMode.STUDY_VOCABULARY);
+    public static LinguisticsMode getScribeTableMode(@Nullable Player player) {
+        return ServicesVC.CAPABILITIES.linguistics(player).map(IPlayerLinguistics::getScribeTableMode).orElse(LinguisticsMode.STUDY_VOCABULARY);
     }
     
-    public static void setScribeTableMode(@Nullable Player player, @Nullable ScribeTableMode mode) {
+    public static void setScribeTableMode(@Nullable Player player, @Nullable LinguisticsMode mode) {
         if (player != null && mode != null) {
-            Services.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
+            ServicesVC.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
                 linguistics.setScribeTableMode(mode);
                 scheduleSync(player);
             });
@@ -217,7 +230,7 @@ public class LinguisticsManager {
     protected static Set<Vector2i> getUnlockedGridNodes(@Nullable Player player, @Nullable ResourceLocation gridKey) {
         MutableObject<Set<Vector2i>> retVal = new MutableObject<>(Collections.emptySet());
         if (player != null && gridKey != null) {
-            Services.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
+            ServicesVC.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
                 retVal.setValue(linguistics.getUnlockedNodes(gridKey));
             });
         }
@@ -227,7 +240,7 @@ public class LinguisticsManager {
     protected static long getGridLastModified(@Nullable Player player, @Nullable ResourceLocation gridKey) {
         MutableLong retVal = new MutableLong(0L);
         if (player != null && gridKey != null) {
-            Services.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
+            ServicesVC.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
                 retVal.setValue(linguistics.getGridLastModified(gridKey));
             });
         }

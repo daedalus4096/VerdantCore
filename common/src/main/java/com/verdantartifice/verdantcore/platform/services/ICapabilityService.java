@@ -1,9 +1,11 @@
 package com.verdantartifice.verdantcore.platform.services;
 
 import com.verdantartifice.verdantcore.common.capabilities.IItemHandlerVC;
+import com.verdantartifice.verdantcore.common.capabilities.IPlayerLinguistics;
 import com.verdantartifice.verdantcore.common.tiles.base.AbstractTileVC;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -11,6 +13,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 public interface ICapabilityService {
+    Optional<IPlayerLinguistics> linguistics(@Nullable Player player);
+
     /**
      * Attempts to get an item handler capability for the given side of the given position in the given world.
      * First searches for tiles that directly implement the capability, then attempts to wrap instances of the

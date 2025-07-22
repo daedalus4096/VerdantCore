@@ -4,6 +4,7 @@ import com.verdantartifice.verdantcore.client.books.ClientBookHelper;
 import com.verdantartifice.verdantcore.client.gui.widgets.StaticBookPageButton;
 import com.verdantartifice.verdantcore.common.books.BookType;
 import com.verdantartifice.verdantcore.common.books.BookView;
+import com.verdantartifice.verdantcore.common.books.LinguisticsManager;
 import net.minecraft.client.GameNarrator;
 import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.Button;
