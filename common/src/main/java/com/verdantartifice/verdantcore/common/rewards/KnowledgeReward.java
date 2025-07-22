@@ -6,7 +6,7 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.verdantartifice.verdantcore.common.research.KnowledgeType;
-import com.verdantartifice.verdantcore.common.research.ResearchManager;
+import com.verdantartifice.verdantcore.common.research.ResearchManagerVC;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.codec.ByteBufCodecs;
@@ -56,7 +56,7 @@ public class KnowledgeReward extends AbstractReward<KnowledgeReward> {
     
     @Override
     public void grant(ServerPlayer player) {
-        ResearchManager.addKnowledge(player, this.knowledgeType, this.levels * this.knowledgeType.getProgression());
+        ResearchManagerVC.addKnowledge(player, this.knowledgeType, this.levels * this.knowledgeType.getProgression());
     }
 
     @Override
