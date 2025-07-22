@@ -1,5 +1,6 @@
 package com.verdantartifice.verdantcore.common.stats;
 
+import com.verdantartifice.verdantcore.common.advancements.critereon.CriteriaTriggersVC;
 import com.verdantartifice.verdantcore.common.crafting.IHasExpertise;
 import com.verdantartifice.verdantcore.common.registries.RegistryKeysVC;
 import com.verdantartifice.verdantcore.common.research.ResearchDiscipline;
@@ -100,7 +101,7 @@ public class StatsManager {
                 // Set the new value into the player capability
                 stats.setValue(stat, value);
                 scheduleSync(spe);
-                CriteriaTriggersPM.STAT_VALUE.get().trigger(spe, stat, value);
+                CriteriaTriggersVC.STAT_VALUE.get().trigger(spe, stat, value);
             });
         }
     }
@@ -114,7 +115,7 @@ public class StatsManager {
     public static void incrementCraftCount(@Nullable Player player, @Nullable RecipeHolder<?> recipeHolder, int amount) {
         if (recipeHolder != null && recipeHolder.value() instanceof IHasExpertise expRecipe) {
             expRecipe.getResearchDiscipline(player.level().registryAccess(), recipeHolder.id()).ifPresent(discKey -> {
-                ResearchDiscipline disc = RegistryUtils.getEntry(RegistryKeysVC.RESEARCH_DISCIPLINES, discKey.getRootKey(), player.level().registryAccess());
+                ResearchDiscipline disc = RegistryUtils.getEntry(discKey.getRegistryKey(), discKey.getRootKey(), player.level().registryAccess());
                 if (disc != null) {
                     disc.craftingStat().ifPresent(stat -> StatsManager.incrementValue(player, stat, amount));
                 }

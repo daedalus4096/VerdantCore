@@ -1,5 +1,6 @@
 package com.verdantartifice.verdantcore.common.research;
 
+import com.verdantartifice.verdantcore.common.advancements.critereon.CriteriaTriggersVC;
 import com.verdantartifice.verdantcore.common.capabilities.IPlayerKnowledge;
 import com.verdantartifice.verdantcore.common.network.PacketHandler;
 import com.verdantartifice.verdantcore.common.research.keys.AbstractResearchKey;
@@ -310,7 +311,7 @@ public class ResearchManagerVC {
         if (knowledge.isResearchComplete(registryAccess, key)) {
             // If the research is already complete, trigger advancement criteria if on server side, then abort
             if (player instanceof ServerPlayer serverPlayer) {
-                CriteriaTriggersPM.RESEARCH_COMPLETED.get().trigger(serverPlayer, key);
+                CriteriaTriggersVC.RESEARCH_COMPLETED.get().trigger(serverPlayer, key);
             }
             return false;
         } else if (!hasPrerequisites(knowledge, registryAccess, key)) {
@@ -496,7 +497,7 @@ public class ResearchManagerVC {
             
             // Trigger any relevant advancements
             if (player instanceof ServerPlayer serverPlayer) {
-                CriteriaTriggersPM.RESEARCH_COMPLETED.get().trigger(serverPlayer, key);
+                CriteriaTriggersVC.RESEARCH_COMPLETED.get().trigger(serverPlayer, key);
             }
         }
         

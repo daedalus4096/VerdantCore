@@ -1,6 +1,6 @@
 package com.verdantartifice.verdantcore.common.books;
 
-import com.verdantartifice.verdantcore.common.advancements.critereon.CriteriaTriggersPM;
+import com.verdantartifice.verdantcore.common.advancements.critereon.CriteriaTriggersVC;
 import com.verdantartifice.verdantcore.common.books.grids.GridDefinition;
 import com.verdantartifice.verdantcore.common.books.grids.PlayerGrid;
 import com.verdantartifice.verdantcore.common.capabilities.IPlayerLinguistics;
@@ -105,7 +105,7 @@ public class LinguisticsManager {
                 linguistics.setComprehension(language.value().languageId(), finalValue);
                 scheduleSync(player);
                 if (player instanceof ServerPlayer serverPlayer && language.unwrapKey().isPresent()) {
-                    CriteriaTriggersPM.LINGUISTICS_COMPREHENSION.get().trigger(serverPlayer, language.unwrapKey().get(), finalValue);
+                    CriteriaTriggersVC.LINGUISTICS_COMPREHENSION.get().trigger(serverPlayer, language.unwrapKey().get(), finalValue);
                 }
             });
         }
@@ -122,7 +122,7 @@ public class LinguisticsManager {
                 linguistics.setComprehension(language.value().languageId(), finalValue);
                 scheduleSync(player);
                 if (player instanceof ServerPlayer serverPlayer && language.unwrapKey().isPresent()) {
-                    CriteriaTriggersPM.LINGUISTICS_COMPREHENSION.get().trigger(serverPlayer, language.unwrapKey().get(), finalValue);
+                    CriteriaTriggersVC.LINGUISTICS_COMPREHENSION.get().trigger(serverPlayer, language.unwrapKey().get(), finalValue);
                 }
             });
         }
