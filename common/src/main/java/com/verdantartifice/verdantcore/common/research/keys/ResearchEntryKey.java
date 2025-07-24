@@ -1,9 +1,9 @@
 package com.verdantartifice.verdantcore.common.research.keys;
 
-import com.mojang.datafixers.util.Pair;
-import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.verdantartifice.verdantcore.common.misc.IconDefinition;
+import com.verdantartifice.verdantcore.common.registries.RegistryEncodedResourceKey;
 import com.verdantartifice.verdantcore.common.research.ResearchEntry;
 import com.verdantartifice.verdantcore.common.research.requirements.RequirementCategory;
 import com.verdantartifice.verdantcore.common.util.ResourceUtils;
@@ -18,45 +18,38 @@ import net.minecraft.resources.ResourceLocation;
 import java.util.Objects;
 
 public class ResearchEntryKey extends AbstractResearchKey<ResearchEntryKey> {
-    public static final MapCodec<ResearchEntryKey> CODEC = Codec.mapPair(ResourceLocation.CODEC.fieldOf("registry"), ResourceLocation.CODEC.fieldOf("entry"))
-            .xmap(
-                    pair -> {
-                        ResourceKey<Registry<ResearchEntry>> registryKey = ResourceKey.createRegistryKey(pair.getFirst());
-                        return new ResearchEntryKey(registryKey, ResourceKey.create(registryKey, pair.getSecond()));
-                    },
-                    key -> new Pair<>(key.getRegistryKey().location(), key.getRootKey().location())
-            );
+    public static final MapCodec<ResearchEntryKey> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            RegistryEncodedResourceKey.<ResearchEntry>codec().fieldOf("key").forGetter(rek -> rek.key)
+        ).apply(instance, ResearchEntryKey::new));
 
     public static final StreamCodec<ByteBuf, ResearchEntryKey> STREAM_CODEC = StreamCodec.composite(
-            ResourceLocation.STREAM_CODEC, key -> key.getRegistryKey().location(),
-            ResourceLocation.STREAM_CODEC, key -> key.getRootKey().location(),
-            (loc1, loc2) -> {
-                ResourceKey<Registry<ResearchEntry>> registryKey = ResourceKey.createRegistryKey(loc1);
-                return new ResearchEntryKey(registryKey, ResourceKey.create(registryKey, loc2));
-            }
-    );
+            RegistryEncodedResourceKey.streamCodec(), rek -> rek.key,
+            ResearchEntryKey::new
+        );
 
     private static final ResourceLocation ICON_UNKNOWN = ResourceUtils.loc("textures/research/research_unknown.png");
 
-    protected final ResourceKey<Registry<ResearchEntry>> registryKey;
-    protected final ResourceKey<ResearchEntry> rootKey;
+    protected final RegistryEncodedResourceKey<ResearchEntry> key;
+
+    public ResearchEntryKey(RegistryEncodedResourceKey<ResearchEntry> key) {
+        this.key = key;
+    }
     
-    public ResearchEntryKey(ResourceKey<Registry<ResearchEntry>> registryKey, ResourceKey<ResearchEntry> rootKey) {
-        this.registryKey = registryKey;
-        this.rootKey = rootKey;
+    public ResearchEntryKey(ResourceKey<ResearchEntry> rootKey) {
+        this(RegistryEncodedResourceKey.fromResourceKey(rootKey));
     }
 
     public ResourceKey<Registry<ResearchEntry>> getRegistryKey() {
-        return this.registryKey;
+        return this.key.registryKey();
     }
     
     public ResourceKey<ResearchEntry> getRootKey() {
-        return this.rootKey;
+        return this.key.toResourceKey();
     }
 
     @Override
     public String toString() {
-        return this.rootKey.location().toString();
+        return this.getRootKey().location().toString();
     }
 
     @Override
@@ -71,26 +64,20 @@ public class ResearchEntryKey extends AbstractResearchKey<ResearchEntryKey> {
 
     @Override
     public IconDefinition getIcon(RegistryAccess registryAccess) {
-        return registryAccess.registryOrThrow(this.registryKey).getHolder(this.rootKey).flatMap(ref -> ref.value().iconOpt()).orElse(IconDefinition.of(ICON_UNKNOWN));
+        return registryAccess.registryOrThrow(this.getRegistryKey()).getHolder(this.getRootKey()).flatMap(ref -> ref.value().iconOpt()).orElse(IconDefinition.of(ICON_UNKNOWN));
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof ResearchEntryKey that)) return false;
+        return Objects.equals(key, that.key);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(this.rootKey.registry(), this.rootKey.location());
+        return Objects.hashCode(key);
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj)
-            return true;
-        if (obj == null)
-            return false;
-        if (getClass() != obj.getClass())
-            return false;
-        ResearchEntryKey other = (ResearchEntryKey) obj;
-        return Objects.equals(rootKey, other.rootKey);
-    }
-    
     public static ResearchEntryKey fromNetwork(RegistryFriendlyByteBuf buf) {
         return (ResearchEntryKey)AbstractResearchKey.fromNetwork(buf);
     }
