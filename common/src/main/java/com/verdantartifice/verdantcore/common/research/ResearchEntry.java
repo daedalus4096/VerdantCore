@@ -69,8 +69,8 @@ public record ResearchEntry(ResearchEntryKey key, Optional<ResearchDisciplineKey
                 ResearchAddendum.streamCodec().apply(ByteBufCodecs.list()), ResearchEntry::addenda,
                 ResearchEntry::new);
 
-    public static Builder builder(String modId, ResourceKey<Registry<ResearchEntry>> registryKey, ResourceKey<ResearchEntry> key) {
-        return new Builder(modId, registryKey, key);
+    public static Builder builder(String modId, ResourceKey<ResearchEntry> key) {
+        return new Builder(modId, key);
     }
     
     public String getBaseTranslationKey() {
@@ -300,8 +300,8 @@ public record ResearchEntry(ResearchEntryKey key, Optional<ResearchDisciplineKey
             this.key = Preconditions.checkNotNull(key);
         }
         
-        public Builder(String modId, ResourceKey<Registry<ResearchEntry>> registryKey, ResourceKey<ResearchEntry> rawKey) {
-            this(modId, new ResearchEntryKey(registryKey, rawKey));
+        public Builder(String modId, ResourceKey<ResearchEntry> rawKey) {
+            this(modId, new ResearchEntryKey(rawKey));
         }
         
         public Builder discipline(ResourceKey<Registry<ResearchDiscipline>> registryKey, ResourceKey<ResearchDiscipline> discKey) {
@@ -338,8 +338,8 @@ public record ResearchEntry(ResearchEntryKey key, Optional<ResearchDisciplineKey
             return this;
         }
         
-        public Builder parent(ResourceKey<Registry<ResearchEntry>> registryKey, ResourceKey<ResearchEntry> rawKey) {
-            return this.parent(new ResearchEntryKey(registryKey, rawKey));
+        public Builder parent(ResourceKey<ResearchEntry> rawKey) {
+            return this.parent(new ResearchEntryKey(rawKey));
         }
         
         public Builder flags(Flags.Builder flagsBuilder) {

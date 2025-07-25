@@ -109,8 +109,8 @@ public record ResearchDiscipline(ResearchDisciplineKey key, Optional<AbstractReq
             return this;
         }
         
-        public Builder unlock(ResourceKey<Registry<ResearchEntry>> registryKey, ResourceKey<ResearchEntry> requiredResearchEntry) {
-            return this.unlock(new ResearchRequirement(new ResearchEntryKey(registryKey, requiredResearchEntry)));
+        public Builder unlock(ResourceKey<ResearchEntry> requiredResearchEntry) {
+            return this.unlock(new ResearchRequirement(new ResearchEntryKey(requiredResearchEntry)));
         }
         
         public Builder icon(ResourceLocation iconLocation) {

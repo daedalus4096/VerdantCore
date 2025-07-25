@@ -43,8 +43,8 @@ public class ResearchCompletedTrigger extends SimpleCriterionTrigger<ResearchCom
                 ).apply(instance, TriggerInstance::new));
         }
         
-        public static Criterion<TriggerInstance> researchEntry(ResourceKey<Registry<ResearchEntry>> registryKey, ResourceKey<ResearchEntry> rawKey) {
-            return CriteriaTriggersVC.RESEARCH_COMPLETED.get().createCriterion(new TriggerInstance(Optional.empty(), new ResearchEntryKey(registryKey, rawKey)));
+        public static Criterion<TriggerInstance> researchEntry(ResourceKey<ResearchEntry> rawKey) {
+            return CriteriaTriggersVC.RESEARCH_COMPLETED.get().createCriterion(new TriggerInstance(Optional.empty(), new ResearchEntryKey(rawKey)));
         }
         
         public static Criterion<TriggerInstance> stackCrafted(ItemLike itemLike) {

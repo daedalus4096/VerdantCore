@@ -61,7 +61,7 @@ public class EntryResearchTopic extends AbstractResearchTopic<EntryResearchTopic
 
     @Override
     public boolean isUnread(Player player) {
-        ResearchEntry e = RegistryUtils.getEntry(RegistryKeysVC.RESEARCH_ENTRIES, this.entry.getRootKey(), player.registryAccess());
+        ResearchEntry e = RegistryUtils.getEntry(this.entry.getRegistryKey(), this.entry.getRootKey(), player.registryAccess());
         return e != null && e.isUnread(player);
     }
 

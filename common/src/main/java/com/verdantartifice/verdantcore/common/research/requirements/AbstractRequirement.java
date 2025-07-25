@@ -76,7 +76,7 @@ public abstract class AbstractRequirement<T extends AbstractRequirement<T>> {
         Optional<ResearchTier> retVal = Optional.empty();
         for (AbstractResearchKey<?> rawKey : this.streamKeys().toList()) {
             if (rawKey instanceof ResearchEntryKey entryKey) {
-                ResearchEntry entry = RegistryUtils.getEntry(RegistryKeysVC.RESEARCH_ENTRIES, entryKey.getRootKey(), registryAccess);
+                ResearchEntry entry = RegistryUtils.getEntry(entryKey.getRegistryKey(), entryKey.getRootKey(), registryAccess);
                 if (entry != null) {
                     Optional<ResearchTier> tierOpt = entry.tierOpt();
                     if (retVal.isEmpty() || (tierOpt.isPresent() && tierOpt.get().compareTo(retVal.get()) > 0)) {

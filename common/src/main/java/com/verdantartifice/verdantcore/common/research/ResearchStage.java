@@ -187,7 +187,7 @@ public record ResearchStage(ResearchEntryKey parentKey, String textTranslationKe
         }
         
         public Builder requiredResearch(ResourceKey<ResearchEntry> entryKey) {
-            return this.requirement(new ResearchRequirement(new ResearchEntryKey(this.parentKey.getRegistryKey(), entryKey)));
+            return this.requirement(new ResearchRequirement(new ResearchEntryKey(entryKey)));
         }
         
         protected Builder requiredKnowledge(KnowledgeType type, int levels) {
@@ -232,17 +232,17 @@ public record ResearchStage(ResearchEntryKey parentKey, String textTranslationKe
         }
         
         public Builder sibling(ResourceKey<ResearchEntry> siblingKey) {
-            this.siblings.add(new ResearchEntryKey(this.parentKey.getRegistryKey(), siblingKey));
+            this.siblings.add(new ResearchEntryKey(siblingKey));
             return this;
         }
         
         public Builder reveals(ResourceKey<ResearchEntry> revelationKey) {
-            this.revelations.add(new ResearchEntryKey(this.parentKey.getRegistryKey(), revelationKey));
+            this.revelations.add(new ResearchEntryKey(revelationKey));
             return this;
         }
 
         public Builder highlights(ResourceKey<ResearchEntry> highlightKey) {
-            this.highlights.add(new ResearchEntryKey(this.parentKey.getRegistryKey(), highlightKey));
+            this.highlights.add(new ResearchEntryKey(highlightKey));
             return this;
         }
 

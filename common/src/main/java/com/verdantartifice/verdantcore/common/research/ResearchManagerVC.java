@@ -129,8 +129,8 @@ public class ResearchManagerVC {
         }
     }
     
-    public static boolean isResearchStarted(@Nonnull IPlayerKnowledge knowledgeCapability, @Nonnull ResourceKey<Registry<ResearchEntry>> registryKey, @Nonnull ResourceKey<ResearchEntry> rawKey) {
-        return isResearchStarted(knowledgeCapability, new ResearchEntryKey(registryKey, rawKey));
+    public static boolean isResearchStarted(@Nonnull IPlayerKnowledge knowledgeCapability, @Nonnull ResourceKey<ResearchEntry> rawKey) {
+        return isResearchStarted(knowledgeCapability, new ResearchEntryKey(rawKey));
     }
     
     public static boolean isResearchStarted(@Nonnull IPlayerKnowledge knowledgeCapability, @Nullable AbstractResearchKey<?> key) {
@@ -140,8 +140,8 @@ public class ResearchManagerVC {
         return knowledgeCapability.isResearchKnown(key);
     }
     
-    public static boolean isResearchComplete(@Nonnull IPlayerKnowledge knowledgeCapability, @Nonnull RegistryAccess registryAccess, @Nonnull ResourceKey<Registry<ResearchEntry>> registryKey, @Nonnull ResourceKey<ResearchEntry> rawKey) {
-        return isResearchComplete(knowledgeCapability, registryAccess, new ResearchEntryKey(registryKey, rawKey));
+    public static boolean isResearchComplete(@Nonnull IPlayerKnowledge knowledgeCapability, @Nonnull RegistryAccess registryAccess, @Nonnull ResourceKey<ResearchEntry> rawKey) {
+        return isResearchComplete(knowledgeCapability, registryAccess, new ResearchEntryKey(rawKey));
     }
     
     public static boolean isResearchComplete(@Nonnull IPlayerKnowledge knowledgeCapability, @Nonnull RegistryAccess registryAccess, @Nullable AbstractResearchKey<?> key) {
@@ -151,8 +151,8 @@ public class ResearchManagerVC {
         return knowledgeCapability.isResearchComplete(registryAccess, key);
     }
     
-    public static boolean completeResearch(@Nullable Player player, @Nonnull IPlayerKnowledge knowledge, @Nonnull ResourceKey<Registry<ResearchEntry>> registryKey, @Nonnull ResourceKey<ResearchEntry> rawKey) {
-        return completeResearch(player, knowledge, new ResearchEntryKey(registryKey, rawKey));
+    public static boolean completeResearch(@Nullable Player player, @Nonnull IPlayerKnowledge knowledge, @Nonnull ResourceKey<ResearchEntry> rawKey) {
+        return completeResearch(player, knowledge, new ResearchEntryKey(rawKey));
     }
     
     public static boolean completeResearch(@Nullable Player player, @Nonnull IPlayerKnowledge knowledge, @Nullable AbstractResearchKey<?> key) {
@@ -174,8 +174,8 @@ public class ResearchManagerVC {
         return retVal;
     }
     
-    public static void forceGrantWithAllParents(@Nullable Player player, @Nonnull IPlayerKnowledge knowledge, @Nonnull ResourceKey<Registry<ResearchEntry>> registryKey, @Nonnull ResourceKey<ResearchEntry> rawKey) {
-        forceGrantWithAllParents(player, knowledge, new ResearchEntryKey(registryKey, rawKey));
+    public static void forceGrantWithAllParents(@Nullable Player player, @Nonnull IPlayerKnowledge knowledge, @Nonnull ResourceKey<ResearchEntry> rawKey) {
+        forceGrantWithAllParents(player, knowledge, new ResearchEntryKey(rawKey));
     }
     
     public static void forceGrantWithAllParents(@Nullable Player player, @Nonnull IPlayerKnowledge knowledge, @Nullable ResearchEntryKey key) {
@@ -234,8 +234,8 @@ public class ResearchManagerVC {
         }
     }
     
-    public static void forceRevokeWithAllChildren(@Nullable Player player, @Nonnull IPlayerKnowledge knowledge, @Nonnull ResourceKey<Registry<ResearchEntry>> registryKey, @Nonnull ResourceKey<ResearchEntry> rawKey) {
-        forceRevokeWithAllChildren(player, knowledge, new ResearchEntryKey(registryKey, rawKey));
+    public static void forceRevokeWithAllChildren(@Nullable Player player, @Nonnull IPlayerKnowledge knowledge, @Nonnull ResourceKey<ResearchEntry> rawKey) {
+        forceRevokeWithAllChildren(player, knowledge, new ResearchEntryKey(rawKey));
     }
     
     public static void forceRevokeWithAllChildren(@Nullable Player player, @Nonnull IPlayerKnowledge knowledge, @Nullable ResearchEntryKey key) {
@@ -284,8 +284,8 @@ public class ResearchManagerVC {
         return true;
     }
     
-    public static boolean progressResearch(@Nullable Player player, @Nonnull IPlayerKnowledge knowledge, @Nonnull ResourceKey<Registry<ResearchEntry>> registryKey, @Nonnull ResourceKey<ResearchEntry> rawKey) {
-        return progressResearch(player, knowledge, new ResearchEntryKey(registryKey, rawKey));
+    public static boolean progressResearch(@Nullable Player player, @Nonnull IPlayerKnowledge knowledge, @Nonnull ResourceKey<ResearchEntry> rawKey) {
+        return progressResearch(player, knowledge, new ResearchEntryKey(rawKey));
     }
     
     public static boolean progressResearch(@Nullable Player player, @Nonnull IPlayerKnowledge knowledge, @Nullable ResearchEntryKey key) {

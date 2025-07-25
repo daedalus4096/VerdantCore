@@ -97,7 +97,7 @@ public interface IHasExpertise extends IHasRequirement {
                 Set<ResearchDisciplineKey> foundDisciplines = new HashSet<>();
                 for (AbstractResearchKey<?> rawKey : req.streamKeys().toList()) {
                     if (rawKey instanceof ResearchEntryKey entryKey) {
-                        ResearchEntry entry = RegistryUtils.getEntry(RegistryKeysVC.RESEARCH_ENTRIES, entryKey.getRootKey(), registryAccess);
+                        ResearchEntry entry = RegistryUtils.getEntry(entryKey.getRegistryKey(), entryKey.getRootKey(), registryAccess);
                         if (entry != null) {
                             entry.disciplineKeyOpt().ifPresent(foundDisciplines::add);
                         }

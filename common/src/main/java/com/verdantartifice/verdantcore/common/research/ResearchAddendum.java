@@ -108,7 +108,7 @@ public record ResearchAddendum(ResearchEntryKey parentKey, String textTranslatio
         }
         
         public Builder siblingResearch(ResourceKey<ResearchEntry> siblingKey) {
-            this.siblings.add(new ResearchEntryKey(this.parentKey.getRegistryKey(), siblingKey));
+            this.siblings.add(new ResearchEntryKey(siblingKey));
             return this;
         }
         
@@ -150,7 +150,7 @@ public record ResearchAddendum(ResearchEntryKey parentKey, String textTranslatio
         }
         
         public Builder requiredResearch(ResourceKey<ResearchEntry> entryKey) {
-            return this.requirement(new ResearchRequirement(new ResearchEntryKey(this.parentKey.getRegistryKey(), entryKey)));
+            return this.requirement(new ResearchRequirement(new ResearchEntryKey(entryKey)));
         }
         
         public Builder requiredKnowledge(KnowledgeType type, int levels) {
