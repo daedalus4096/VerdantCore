@@ -1,7 +1,7 @@
 package com.verdantartifice.verdantcore.platform;
 
 import com.verdantartifice.verdantcore.common.capabilities.IItemHandlerVC;
-import com.verdantartifice.verdantcore.common.capabilities.ItemStackHandlerPMForge;
+import com.verdantartifice.verdantcore.common.capabilities.ItemStackHandlerVCForge;
 import com.verdantartifice.verdantcore.common.tiles.base.AbstractTileVC;
 import com.verdantartifice.verdantcore.common.util.InvWrapperPMForge;
 import com.verdantartifice.verdantcore.common.util.SidedInvWrapperPMForge;
@@ -16,22 +16,22 @@ import org.jetbrains.annotations.Nullable;
 public class ItemHandlerServiceForge implements IItemHandlerService {
     @Override
     public IItemHandlerVC create(@Nullable AbstractTileVC tile) {
-        return new ItemStackHandlerPMForge(tile);
+        return new ItemStackHandlerVCForge(tile);
     }
 
     @Override
     public IItemHandlerVC create(int size, @Nullable AbstractTileVC tile) {
-        return new ItemStackHandlerPMForge(size, tile);
+        return new ItemStackHandlerVCForge(size, tile);
     }
 
     @Override
     public IItemHandlerVC create(NonNullList<ItemStack> stacks, @Nullable AbstractTileVC tile) {
-        return new ItemStackHandlerPMForge(stacks, tile);
+        return new ItemStackHandlerVCForge(stacks, tile);
     }
 
     @Override
     public IItemHandlerVC.Builder builder(NonNullList<ItemStack> stacks, @Nullable AbstractTileVC tile) {
-        return ItemStackHandlerPMForge.builder(stacks, tile);
+        return ItemStackHandlerVCForge.builder(stacks, tile);
     }
 
     @Override

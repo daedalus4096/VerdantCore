@@ -1,7 +1,7 @@
 package com.verdantartifice.verdantcore.platform;
 
 import com.verdantartifice.verdantcore.common.capabilities.IItemHandlerVC;
-import com.verdantartifice.verdantcore.common.capabilities.ItemStackHandlerPMNeoforge;
+import com.verdantartifice.verdantcore.common.capabilities.ItemStackHandlerVCNeoforge;
 import com.verdantartifice.verdantcore.common.tiles.base.AbstractTileVC;
 import com.verdantartifice.verdantcore.platform.services.ICapabilityService;
 import net.minecraft.core.BlockPos;
@@ -24,7 +24,7 @@ public class CapabilityServiceNeoforge implements ICapabilityService {
             return Optional.of(castHandler);
         } else if  (neoforgeHandler != null) {
             // If the tile entity provides an item handler capability in need of wrapping, do so
-            return Optional.of(new ItemStackHandlerPMNeoforge(neoforgeHandler, null));
+            return Optional.of(new ItemStackHandlerVCNeoforge(neoforgeHandler, null));
         } else if (level.getBlockEntity(pos) instanceof Container container) {
             // If the tile entity does not provide an item handler but does have an inventory, return a wrapper around that
             return Optional.ofNullable(ServicesVC.ITEM_HANDLERS.wrap(container, face));
