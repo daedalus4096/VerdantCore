@@ -206,12 +206,12 @@ public record ResearchStage(ResearchEntryKey parentKey, String textTranslationKe
             return this.requirement(new VanillaItemUsedStatRequirement(item.asItem(), value));
         }
         
-        public Builder requiredExpertise(ResourceKey<Registry<ResearchDiscipline>> registryKey, ResourceKey<ResearchDiscipline> discipline, ResearchTier tier) {
-            return this.requirement(new ExpertiseRequirement(registryKey, discipline, tier));
+        public Builder requiredExpertise(ResourceKey<ResearchDiscipline> discipline, ResearchTier tier) {
+            return this.requirement(new ExpertiseRequirement(discipline, tier));
         }
         
-        public Builder requiredExpertise(ResourceKey<Registry<ResearchDiscipline>> registryKey, ResourceKey<ResearchDiscipline> discipline, ResearchTier tier, int threshold) {
-            return this.requirement(new ExpertiseRequirement(registryKey, discipline, tier, threshold));
+        public Builder requiredExpertise(ResourceKey<ResearchDiscipline> discipline, ResearchTier tier, int threshold) {
+            return this.requirement(new ExpertiseRequirement(discipline, tier, threshold));
         }
         
         public Builder recipe(String name) {

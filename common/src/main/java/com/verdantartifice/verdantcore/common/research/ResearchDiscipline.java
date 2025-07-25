@@ -88,8 +88,8 @@ public record ResearchDiscipline(ResearchDisciplineKey key, Optional<AbstractReq
         return registryAccess.registryOrThrow(registryKey).stream().filter(e -> e.isFinaleFor(this.key)).toList();
     }
     
-    public static Builder builder(ResourceKey<Registry<ResearchDiscipline>> registryKey, ResourceKey<ResearchDiscipline> key) {
-        return new Builder(new ResearchDisciplineKey(registryKey, key));
+    public static Builder builder(ResourceKey<ResearchDiscipline> key) {
+        return new Builder(new ResearchDisciplineKey(key));
     }
 
     public static class Builder {

@@ -109,8 +109,8 @@ public record ResearchEntry(ResearchEntryKey key, Optional<ResearchDisciplineKey
      * @param discipline the discipline to be tested
      * @return whether this research is a finale for the given discipline key
      */
-    public boolean isFinaleFor(ResourceKey<Registry<ResearchDiscipline>> registryKey, ResourceKey<ResearchDiscipline> discipline) {
-        return this.isFinaleFor(new ResearchDisciplineKey(registryKey, discipline));
+    public boolean isFinaleFor(ResourceKey<ResearchDiscipline> discipline) {
+        return this.isFinaleFor(new ResearchDisciplineKey(discipline));
     }
     
     public boolean isNew(@NotNull IPlayerKnowledge knowledgeCapability) {
@@ -304,8 +304,8 @@ public record ResearchEntry(ResearchEntryKey key, Optional<ResearchDisciplineKey
             this(modId, new ResearchEntryKey(rawKey));
         }
         
-        public Builder discipline(ResourceKey<Registry<ResearchDiscipline>> registryKey, ResourceKey<ResearchDiscipline> discKey) {
-            this.disciplineKeyOpt = Optional.of(new ResearchDisciplineKey(registryKey, discKey));
+        public Builder discipline(ResourceKey<ResearchDiscipline> discKey) {
+            this.disciplineKeyOpt = Optional.of(new ResearchDisciplineKey(discKey));
             return this;
         }
         
@@ -347,8 +347,8 @@ public record ResearchEntry(ResearchEntryKey key, Optional<ResearchDisciplineKey
             return this;
         }
         
-        public Builder finale(ResourceKey<Registry<ResearchDiscipline>> registryKey, ResourceKey<ResearchDiscipline> discKey) {
-            this.finales.add(new ResearchDisciplineKey(registryKey, discKey));
+        public Builder finale(ResourceKey<ResearchDiscipline> discKey) {
+            this.finales.add(new ResearchDisciplineKey(discKey));
             return this;
         }
         

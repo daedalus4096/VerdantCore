@@ -52,12 +52,12 @@ public class ExpertiseRequirement extends AbstractRequirement<ExpertiseRequireme
         this.thresholdOverrideOpt = thresholdOverrideOpt;
     }
     
-    public ExpertiseRequirement(ResourceKey<Registry<ResearchDiscipline>> registryKey, ResourceKey<ResearchDiscipline> discipline, ResearchTier tier) {
-        this(new ResearchDisciplineKey(registryKey, discipline), tier, Optional.empty());
+    public ExpertiseRequirement(ResourceKey<ResearchDiscipline> discipline, ResearchTier tier) {
+        this(new ResearchDisciplineKey(discipline), tier, Optional.empty());
     }
     
-    public ExpertiseRequirement(ResourceKey<Registry<ResearchDiscipline>> registryKey, ResourceKey<ResearchDiscipline> discipline, ResearchTier tier, int thresholdOverride) {
-        this(new ResearchDisciplineKey(registryKey, discipline), tier, Optional.of(thresholdOverride));
+    public ExpertiseRequirement(ResourceKey<ResearchDiscipline> discipline, ResearchTier tier, int thresholdOverride) {
+        this(new ResearchDisciplineKey(discipline), tier, Optional.of(thresholdOverride));
     }
     
     public ResearchDisciplineKey getDiscipline() {
