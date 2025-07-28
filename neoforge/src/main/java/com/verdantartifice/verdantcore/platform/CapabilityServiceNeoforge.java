@@ -1,21 +1,64 @@
 package com.verdantartifice.verdantcore.platform;
 
 import com.verdantartifice.verdantcore.common.capabilities.IItemHandlerVC;
+import com.verdantartifice.verdantcore.common.capabilities.IPlayerKnowledge;
+import com.verdantartifice.verdantcore.common.capabilities.IPlayerLinguistics;
 import com.verdantartifice.verdantcore.common.capabilities.ItemStackHandlerVCNeoforge;
 import com.verdantartifice.verdantcore.common.tiles.base.AbstractTileVC;
 import com.verdantartifice.verdantcore.platform.services.ICapabilityService;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.Container;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.neoforged.neoforge.attachment.AttachmentType;
 import net.neoforged.neoforge.capabilities.Capabilities;
 import net.neoforged.neoforge.items.IItemHandler;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Supplier;
 
 public class CapabilityServiceNeoforge implements ICapabilityService {
+    private static final Map<ResourceLocation, Supplier<AttachmentType<IPlayerKnowledge>>> KNOWLEDGE_TOKENS = new ConcurrentHashMap<>();
+    private static final Map<ResourceLocation, Supplier<AttachmentType<IPlayerLinguistics>>> LINGUISTICS_TOKENS = new ConcurrentHashMap<>();
+
+    public static void registerKnowledgeToken(@NotNull ResourceLocation registryLoc, @NotNull Supplier<AttachmentType<IPlayerKnowledge>> capability) {
+        KNOWLEDGE_TOKENS.put(registryLoc, capability);
+    }
+
+    public static void registerLinguisticsToken(@NotNull ResourceLocation registryLoc, @NotNull Supplier<AttachmentType<IPlayerLinguistics>> capability) {
+        LINGUISTICS_TOKENS.put(registryLoc, capability);
+    }
+
+    @NotNull
+    private Optional<Supplier<AttachmentType<IPlayerKnowledge>>> lookupKnowledgeToken(@NotNull ResourceLocation registryLocation) {
+        return Optional.ofNullable(KNOWLEDGE_TOKENS.get(registryLocation));
+    }
+
+    @Override
+    public Optional<IPlayerKnowledge> knowledge(@Nullable Player player, @Nullable ResourceLocation registryLocation) {
+        return player == null || registryLocation == null ?
+                Optional.empty() :
+                lookupKnowledgeToken(registryLocation).map(player::getData);
+    }
+
+    @NotNull
+    private Optional<Supplier<AttachmentType<IPlayerLinguistics>>> lookupLinguisticsToken(@NotNull ResourceLocation registryLoc) {
+        return Optional.ofNullable(LINGUISTICS_TOKENS.get(registryLoc));
+    }
+
+    @Override
+    public Optional<IPlayerLinguistics> linguistics(@Nullable Player player, @Nullable ResourceLocation registryLocation) {
+        return player == null || registryLocation == null ?
+                Optional.empty() :
+                lookupLinguisticsToken(registryLocation).map(player::getData);
+    }
+
     @Override
     public Optional<IItemHandlerVC> itemHandler(@NotNull Level level, @NotNull BlockPos pos, @Nullable Direction face) {
         IItemHandler neoforgeHandler = level.getCapability(Capabilities.ItemHandler.BLOCK, pos, face);

@@ -73,12 +73,13 @@ public class LinguisticsManager {
             return true;
         }
 
-        return ServicesVC.CAPABILITIES.linguistics(player).map(linguistics -> linguistics.isLanguageKnown(language.value().languageId())).orElse(false);
+        return language.unwrapKey().flatMap(langKey -> ServicesVC.CAPABILITIES.linguistics(player, langKey.registry()))
+                .map(linguistics -> linguistics.isLanguageKnown(language.value().languageId())).orElse(false);
     }
     
     public static void markRead(@Nullable Player player, @Nullable Holder<BookDefinition> book, @Nullable Holder<BookLanguage> language) {
         if (player != null && book != null && language != null) {
-            ServicesVC.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
+            language.unwrapKey().flatMap(langKey -> ServicesVC.CAPABILITIES.linguistics(player, langKey.registry())).ifPresent(linguistics -> {
                 if (linguistics.markRead(book.value().bookId(), language.value().languageId())) {
                     // FIXME If the book/language combination is new and the language should unlock the linguistics research entry, increment the unique books statistic
                     incrementLanguageTagStats(player, language);
@@ -91,7 +92,7 @@ public class LinguisticsManager {
     public static int getComprehension(@Nullable Player player, @Nullable Holder<BookLanguage> language) {
         MutableInt retVal = new MutableInt(0);
         if (player != null && language != null) {
-            ServicesVC.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
+            language.unwrapKey().flatMap(langKey -> ServicesVC.CAPABILITIES.linguistics(player, langKey.registry())).ifPresent(linguistics -> {
                 retVal.setValue(linguistics.getComprehension(language.value().languageId()));
             });
         }
@@ -100,7 +101,7 @@ public class LinguisticsManager {
     
     public static void setComprehension(@Nullable Player player, @Nullable Holder<BookLanguage> language, int comprehension) {
         if (player != null && language != null) {
-            ServicesVC.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
+            language.unwrapKey().flatMap(langKey -> ServicesVC.CAPABILITIES.linguistics(player, langKey.registry())).ifPresent(linguistics -> {
                 int finalValue = Mth.clamp(comprehension, 0, language.value().complexity());
                 linguistics.setComprehension(language.value().languageId(), finalValue);
                 scheduleSync(player);
@@ -117,7 +118,7 @@ public class LinguisticsManager {
     
     public static void incrementComprehension(@Nullable Player player, @Nullable Holder<BookLanguage> language, int delta) {
         if (player != null && language != null) {
-            ServicesVC.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
+            language.unwrapKey().flatMap(langKey -> ServicesVC.CAPABILITIES.linguistics(player, langKey.registry())).ifPresent(linguistics -> {
                 int finalValue = Mth.clamp(linguistics.getComprehension(language.value().languageId()) + delta, 0, language.value().complexity());
                 linguistics.setComprehension(language.value().languageId(), finalValue);
                 scheduleSync(player);
@@ -131,7 +132,7 @@ public class LinguisticsManager {
     public static int getVocabulary(@Nullable Player player, @Nullable Holder<BookLanguage> language) {
         MutableInt retVal = new MutableInt(0);
         if (player != null && language != null) {
-            ServicesVC.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
+            language.unwrapKey().flatMap(langKey -> ServicesVC.CAPABILITIES.linguistics(player, langKey.registry())).ifPresent(linguistics -> {
                 retVal.setValue(linguistics.getVocabulary(language.value().languageId()));
             });
         }
@@ -140,7 +141,7 @@ public class LinguisticsManager {
     
     public static void setVocabulary(@Nullable Player player, @Nullable Holder<BookLanguage> language, int vocabulary) {
         if (player != null && language != null) {
-            ServicesVC.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
+            language.unwrapKey().flatMap(langKey -> ServicesVC.CAPABILITIES.linguistics(player, langKey.registry())).ifPresent(linguistics -> {
                 linguistics.setVocabulary(language.value().languageId(), Math.max(0, vocabulary));
                 scheduleSync(player);
             });
@@ -153,7 +154,7 @@ public class LinguisticsManager {
     
     public static void incrementVocabulary(@Nullable Player player, @Nullable Holder<BookLanguage> language, int delta) {
         if (player != null && language != null) {
-            ServicesVC.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
+            language.unwrapKey().flatMap(langKey -> ServicesVC.CAPABILITIES.linguistics(player, langKey.registry())).ifPresent(linguistics -> {
                 linguistics.setVocabulary(language.value().languageId(), Math.max(0, linguistics.getVocabulary(language.value().languageId()) + delta));
                 scheduleSync(player);
             });
@@ -163,7 +164,7 @@ public class LinguisticsManager {
     public static int getTimesStudied(@Nullable Player player, @Nullable Holder<BookDefinition> book, @Nullable Holder<BookLanguage> language) {
         MutableInt retVal = new MutableInt(0);
         if (player != null && book != null && language != null) {
-            ServicesVC.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
+            language.unwrapKey().flatMap(langKey -> ServicesVC.CAPABILITIES.linguistics(player, langKey.registry())).ifPresent(linguistics -> {
                 retVal.setValue(linguistics.getTimesStudied(book.value().bookId(), language.value().languageId()));
             });
         }
@@ -172,7 +173,7 @@ public class LinguisticsManager {
     
     public static void setTimesStudied(@Nullable Player player, @Nullable Holder<BookDefinition> book, @Nullable Holder<BookLanguage> language, int studyCount) {
         if (player != null && book != null && language != null) {
-            ServicesVC.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
+            language.unwrapKey().flatMap(langKey -> ServicesVC.CAPABILITIES.linguistics(player, langKey.registry())).ifPresent(linguistics -> {
                 linguistics.setTimesStudied(book.value().bookId(), language.value().languageId(), Math.max(0, studyCount));
                 scheduleSync(player);
             });
@@ -185,7 +186,7 @@ public class LinguisticsManager {
     
     public static void incrementTimesStudied(@Nullable Player player, @Nullable Holder<BookDefinition> book, @Nullable Holder<BookLanguage> language, int delta) {
         if (player != null && book != null && language != null) {
-            ServicesVC.CAPABILITIES.linguistics(player).ifPresent(linguistics -> {
+            language.unwrapKey().flatMap(langKey -> ServicesVC.CAPABILITIES.linguistics(player, langKey.registry())).ifPresent(linguistics -> {
                 linguistics.setTimesStudied(book.value().bookId(), language.value().languageId(), Math.max(0, linguistics.getTimesStudied(book.value().bookId(), language.value().languageId()) + delta));
                 scheduleSync(player);
             });

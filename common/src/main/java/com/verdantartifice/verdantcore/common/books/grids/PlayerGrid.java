@@ -102,7 +102,7 @@ public class PlayerGrid {
         } else {
             // Add the unlocked node to the player's linguistics data and update the local cache
             MutableBoolean retVal = new MutableBoolean(false);
-            ServicesVC.CAPABILITIES.linguistics(this.player).ifPresent(linguistics -> {
+            ServicesVC.CAPABILITIES.linguistics(this.player, this.definition.language.registryKey().location()).ifPresent(linguistics -> {
                 if (linguistics.unlockNode(this.definition.getKey(), node)) {
                     this.lastModified = linguistics.getGridLastModified(this.definition.getKey());
                     if (!this.player.getAbilities().instabuild) {

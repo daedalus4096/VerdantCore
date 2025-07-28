@@ -1,10 +1,17 @@
 package com.verdantartifice.verdantcore.platform.services;
 
+import com.verdantartifice.verdantcore.common.books.BookDefinition;
+import com.verdantartifice.verdantcore.common.books.BookLanguage;
 import com.verdantartifice.verdantcore.common.capabilities.IItemHandlerVC;
+import com.verdantartifice.verdantcore.common.capabilities.IPlayerKnowledge;
 import com.verdantartifice.verdantcore.common.capabilities.IPlayerLinguistics;
+import com.verdantartifice.verdantcore.common.research.ResearchEntry;
 import com.verdantartifice.verdantcore.common.tiles.base.AbstractTileVC;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import org.jetbrains.annotations.NotNull;
@@ -13,7 +20,8 @@ import org.jetbrains.annotations.Nullable;
 import java.util.Optional;
 
 public interface ICapabilityService {
-    Optional<IPlayerLinguistics> linguistics(@Nullable Player player);
+    Optional<IPlayerKnowledge> knowledge(@Nullable Player player, @Nullable ResourceLocation registryLocation);
+    Optional<IPlayerLinguistics> linguistics(@Nullable Player player, @Nullable ResourceLocation registryLocation);
 
     /**
      * Attempts to get an item handler capability for the given side of the given position in the given world.
