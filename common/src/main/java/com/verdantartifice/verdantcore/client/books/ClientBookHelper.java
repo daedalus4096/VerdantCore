@@ -1,7 +1,6 @@
 package com.verdantartifice.verdantcore.client.books;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.ImmutableMap;
 import com.verdantartifice.verdantcore.common.books.BookHelper;
 import com.verdantartifice.verdantcore.common.books.BookLanguage;
 import com.verdantartifice.verdantcore.common.books.BookType;
@@ -25,11 +24,13 @@ import net.minecraft.util.StringDecomposer;
 import net.minecraft.world.item.enchantment.Enchantment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.BiFunction;
 import java.util.function.Consumer;
 import java.util.function.Function;
@@ -51,10 +52,7 @@ public class ClientBookHelper {
     private static final Style FOREWORD_TEXT_STYLE = Style.EMPTY.withItalic(true);
     private static final Style AFTERWORD_TEXT_STYLE = Style.EMPTY.withItalic(true);
     
-    private static final Map<BookType, BookSprites> SPRITES = ImmutableMap.<BookType, BookSprites>builder()
-            .put(BookType.BOOK, BookSprites.VANILLA)
-            .put(BookType.TABLET, BookSprites.TABLET)
-            .build();
+    private static final Map<BookType, BookSprites> SPRITES = new ConcurrentHashMap<>();
 
     private static BiFunction<BookView, Font, List<FormattedCharSequence>> memoizedTextLines = Util.memoize(ClientBookHelper::getTextLinesInner);
     private static Function<BookView, List<String>> memoizedUnencodedWords = Util.memoize(ClientBookHelper::getUnencodedWordsInner);
@@ -65,9 +63,14 @@ public class ClientBookHelper {
         memoizedUnencodedWords = Util.memoize(ClientBookHelper::getUnencodedWordsInner);
         memoizedBookComprehension = Util.memoize(ClientBookHelper::getBookComprehensionInner);
     }
+
+    public static void registerSprites(BookType type, BookSprites sprites) {
+        SPRITES.put(type, sprites);
+    }
     
+    @Nullable
     public static BookSprites getSprites(BookType type) {
-        return SPRITES.getOrDefault(type, BookSprites.VANILLA);
+        return SPRITES.get(type);
     }
     
     private static String getForewordTranslationKey(BookView view) {
