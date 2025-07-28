@@ -30,7 +30,7 @@ public class SyncResearchFlagsPacket implements IMessageToServer {
     protected final boolean isRead;
     
     public SyncResearchFlagsPacket(Player player, ResearchEntryKey key) {
-        IPlayerKnowledge knowledge = ServicesVC.CAPABILITIES.knowledge(player).orElseThrow(() -> new IllegalArgumentException("No knowledge provider for player"));
+        IPlayerKnowledge knowledge = ServicesVC.CAPABILITIES.knowledge(player, key.getRegistryKey().location()).orElseThrow(() -> new IllegalArgumentException("No knowledge provider for player"));
         this.key = key;
         this.isNew = knowledge.hasResearchFlag(key, IPlayerKnowledge.ResearchFlag.NEW);
         this.isUpdated = knowledge.hasResearchFlag(key, IPlayerKnowledge.ResearchFlag.UPDATED);
@@ -69,7 +69,7 @@ public class SyncResearchFlagsPacket implements IMessageToServer {
         SyncResearchFlagsPacket message = ctx.message();
         if (message.key != null) {
             Player player = ctx.sender();
-            ServicesVC.CAPABILITIES.knowledge(player).ifPresent(knowledge -> {
+            ServicesVC.CAPABILITIES.knowledge(player, message.key.getRegistryKey().location()).ifPresent(knowledge -> {
                 // Add or remove each flag from the research entry as appropriate
                 if (message.isNew) {
                     knowledge.addResearchFlag(message.key, IPlayerKnowledge.ResearchFlag.NEW);

@@ -67,7 +67,7 @@ public class ClientBookHelper {
     public static void registerSprites(BookType type, BookSprites sprites) {
         SPRITES.put(type, sprites);
     }
-    
+
     @Nullable
     public static BookSprites getSprites(BookType type) {
         return SPRITES.get(type);
