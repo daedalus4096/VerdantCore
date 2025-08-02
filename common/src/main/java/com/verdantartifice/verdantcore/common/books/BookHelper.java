@@ -38,7 +38,7 @@ public class BookHelper {
             ResourceLocation bookLoc = bookHolder.value().bookId();
             return String.join(".", "written_book", bookLoc.getNamespace(), bookLoc.getPath(), "title");
         }, enchHolder -> {
-            return "tooltip.primalmagick.question_marks";
+            return "tooltip.verdantcore.question_marks";
         });
     }
 
