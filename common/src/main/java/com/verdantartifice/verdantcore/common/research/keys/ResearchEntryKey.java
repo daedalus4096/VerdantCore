@@ -2,11 +2,13 @@ package com.verdantartifice.verdantcore.common.research.keys;
 
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.verdantartifice.verdantcore.common.capabilities.IPlayerKnowledge;
 import com.verdantartifice.verdantcore.common.misc.IconDefinition;
 import com.verdantartifice.verdantcore.common.registries.RegistryEncodedResourceKey;
 import com.verdantartifice.verdantcore.common.research.ResearchEntry;
 import com.verdantartifice.verdantcore.common.research.requirements.RequirementCategory;
 import com.verdantartifice.verdantcore.common.util.ResourceUtils;
+import com.verdantartifice.verdantcore.platform.ServicesVC;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -14,8 +16,11 @@ import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class ResearchEntryKey extends AbstractResearchKey<ResearchEntryKey> {
     public static final MapCodec<ResearchEntryKey> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -65,6 +70,11 @@ public class ResearchEntryKey extends AbstractResearchKey<ResearchEntryKey> {
     @Override
     public IconDefinition getIcon(RegistryAccess registryAccess) {
         return registryAccess.registryOrThrow(this.getRegistryKey()).getHolder(this.getRootKey()).flatMap(ref -> ref.value().iconOpt()).orElse(IconDefinition.of(ICON_UNKNOWN));
+    }
+
+    @Override
+    protected Optional<IPlayerKnowledge> getPlayerKnowledge(@Nullable Player player) {
+        return ServicesVC.CAPABILITIES.knowledge(player, this.getRegistryKey().location());
     }
 
     @Override

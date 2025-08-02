@@ -1,6 +1,9 @@
 package com.verdantartifice.verdantcore.common.research.keys;
 
+import com.google.common.base.Preconditions;
 import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
+import com.verdantartifice.verdantcore.common.capabilities.IPlayerKnowledge;
 import com.verdantartifice.verdantcore.common.misc.IconDefinition;
 import com.verdantartifice.verdantcore.common.research.ResearchManagerVC;
 import com.verdantartifice.verdantcore.common.research.requirements.RequirementCategory;
@@ -8,29 +11,42 @@ import com.verdantartifice.verdantcore.platform.ServicesVC;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.ItemLike;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.Objects;
+import java.util.Optional;
 
 public class StackCraftedKey extends AbstractResearchKey<StackCraftedKey> {
-    public static final MapCodec<StackCraftedKey> CODEC = ItemStack.CODEC.fieldOf("stack").xmap(StackCraftedKey::new, key -> key.stack);
-    public static final StreamCodec<RegistryFriendlyByteBuf, StackCraftedKey> STREAM_CODEC = ItemStack.STREAM_CODEC.map(StackCraftedKey::new, key -> key.stack);
-    
+    public static final MapCodec<StackCraftedKey> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
+            ItemStack.CODEC.fieldOf("stack").forGetter(k -> k.stack),
+            ResourceLocation.CODEC.fieldOf("registryLocation").forGetter(k -> k.registryLocation)
+    ).apply(instance, StackCraftedKey::new));
+
+    public static final StreamCodec<RegistryFriendlyByteBuf, StackCraftedKey> STREAM_CODEC = StreamCodec.composite(
+            ItemStack.STREAM_CODEC, k -> k.stack,
+            ResourceLocation.STREAM_CODEC, k -> k.registryLocation,
+            StackCraftedKey::new);
+
     private static final String PREFIX = "[#]";
     
     protected final ItemStack stack;
+    protected final ResourceLocation registryLocation;
     
-    public StackCraftedKey(ItemStack stack) {
+    public StackCraftedKey(ItemStack stack, ResourceLocation registryLocation) {
         if (stack == null || stack.isEmpty()) {
             throw new IllegalArgumentException("Item stack may not be null or empty");
         }
         this.stack = stack.copyWithCount(1);    // Preserve the stack NBT but not its count
         ResearchManagerVC.addCraftingReference(this.hashCode());
+        this.registryLocation = Preconditions.checkNotNull(registryLocation);
     }
     
-    public StackCraftedKey(ItemLike itemLike) {
-        this(new ItemStack(itemLike.asItem()));
+    public StackCraftedKey(ItemLike itemLike, ResourceLocation registryLocation) {
+        this(new ItemStack(itemLike.asItem()), registryLocation);
     }
     
     @Override
@@ -51,6 +67,11 @@ public class StackCraftedKey extends AbstractResearchKey<StackCraftedKey> {
     @Override
     public IconDefinition getIcon(RegistryAccess registryAccess) {
         return IconDefinition.of(this.stack.getItem());
+    }
+
+    @Override
+    protected Optional<IPlayerKnowledge> getPlayerKnowledge(@Nullable Player player) {
+        return ServicesVC.CAPABILITIES.knowledge(player, this.registryLocation);
     }
 
     @Override

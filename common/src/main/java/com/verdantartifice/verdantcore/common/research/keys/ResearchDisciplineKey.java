@@ -8,6 +8,7 @@ import com.verdantartifice.verdantcore.common.registries.RegistryEncodedResource
 import com.verdantartifice.verdantcore.common.research.ResearchDiscipline;
 import com.verdantartifice.verdantcore.common.research.requirements.RequirementCategory;
 import com.verdantartifice.verdantcore.common.util.ResourceUtils;
+import com.verdantartifice.verdantcore.platform.ServicesVC;
 import io.netty.buffer.ByteBuf;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
@@ -17,11 +18,11 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import javax.annotation.Nonnull;
 import java.util.Objects;
+import java.util.Optional;
 
 public class ResearchDisciplineKey extends AbstractResearchKey<ResearchDisciplineKey> {
     public static final MapCodec<ResearchDisciplineKey> CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
@@ -85,7 +86,12 @@ public class ResearchDisciplineKey extends AbstractResearchKey<ResearchDisciplin
     }
 
     @Override
-    public boolean isKnownBy(@Nullable Player player, @NotNull IPlayerKnowledge knowledgeCapability) {
+    protected Optional<IPlayerKnowledge> getPlayerKnowledge(@Nullable Player player) {
+        return ServicesVC.CAPABILITIES.knowledge(player, this.getRegistryKey().location());
+    }
+
+    @Override
+    public boolean isKnownBy(@Nullable Player player) {
         if (player == null) {
             return false;
         }

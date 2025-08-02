@@ -155,7 +155,7 @@ public record ResearchStage(ResearchEntryKey parentKey, String textTranslationKe
         }
         
         public Builder requiredCraft(ItemStack stack) {
-            return this.requirement(new ResearchRequirement(new StackCraftedKey(stack.copy())));
+            return this.requirement(new ResearchRequirement(new StackCraftedKey(stack.copy(), this.parentKey.getRegistryKey().location())));
         }
         
         public Builder requiredCraft(ItemLike item) {
@@ -163,7 +163,7 @@ public record ResearchStage(ResearchEntryKey parentKey, String textTranslationKe
         }
         
         public Builder requiredCraft(TagKey<Item> tag) {
-            return this.requirement(new ResearchRequirement(new TagCraftedKey(tag)));
+            return this.requirement(new ResearchRequirement(new TagCraftedKey(tag, this.parentKey.getRegistryKey().location())));
         }
         
         public Builder requiredItem(ItemStack stack) {

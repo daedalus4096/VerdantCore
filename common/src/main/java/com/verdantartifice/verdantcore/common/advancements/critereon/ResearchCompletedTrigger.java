@@ -11,8 +11,8 @@ import net.minecraft.advancements.Criterion;
 import net.minecraft.advancements.critereon.ContextAwarePredicate;
 import net.minecraft.advancements.critereon.EntityPredicate;
 import net.minecraft.advancements.critereon.SimpleCriterionTrigger;
-import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
@@ -47,16 +47,16 @@ public class ResearchCompletedTrigger extends SimpleCriterionTrigger<ResearchCom
             return CriteriaTriggersVC.RESEARCH_COMPLETED.get().createCriterion(new TriggerInstance(Optional.empty(), new ResearchEntryKey(rawKey)));
         }
         
-        public static Criterion<TriggerInstance> stackCrafted(ItemLike itemLike) {
-            return CriteriaTriggersVC.RESEARCH_COMPLETED.get().createCriterion(new TriggerInstance(Optional.empty(), new StackCraftedKey(itemLike)));
+        public static Criterion<TriggerInstance> stackCrafted(ItemLike itemLike, ResourceLocation registryLocation) {
+            return CriteriaTriggersVC.RESEARCH_COMPLETED.get().createCriterion(new TriggerInstance(Optional.empty(), new StackCraftedKey(itemLike, registryLocation)));
         }
         
-        public static Criterion<TriggerInstance> stackCrafted(ItemStack stack) {
-            return CriteriaTriggersVC.RESEARCH_COMPLETED.get().createCriterion(new TriggerInstance(Optional.empty(), new StackCraftedKey(stack)));
+        public static Criterion<TriggerInstance> stackCrafted(ItemStack stack, ResourceLocation registryLocation) {
+            return CriteriaTriggersVC.RESEARCH_COMPLETED.get().createCriterion(new TriggerInstance(Optional.empty(), new StackCraftedKey(stack, registryLocation)));
         }
         
-        public static Criterion<TriggerInstance> tagCrafted(TagKey<Item> tagKey) {
-            return CriteriaTriggersVC.RESEARCH_COMPLETED.get().createCriterion(new TriggerInstance(Optional.empty(), new TagCraftedKey(tagKey)));
+        public static Criterion<TriggerInstance> tagCrafted(TagKey<Item> tagKey, ResourceLocation registryLocation) {
+            return CriteriaTriggersVC.RESEARCH_COMPLETED.get().createCriterion(new TriggerInstance(Optional.empty(), new TagCraftedKey(tagKey, registryLocation)));
         }
         
         public boolean matches(AbstractResearchKey<?> completedKey) {

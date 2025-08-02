@@ -7,7 +7,6 @@ import com.verdantartifice.verdantcore.common.research.keys.AbstractResearchKey;
 import com.verdantartifice.verdantcore.common.research.keys.ResearchEntryKey;
 import com.verdantartifice.verdantcore.common.stats.StatsManager;
 import com.verdantartifice.verdantcore.common.util.RegistryUtils;
-import com.verdantartifice.verdantcore.platform.ServicesVC;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -122,7 +121,7 @@ public class ResearchManagerVC {
                 return true;
             } else {
                 // Perform a strict completion check on the given entry's parent research
-                return entryRefOpt.get().value().parents().stream().allMatch(k -> k.isKnownBy(player, knowledgeCapability));
+                return entryRefOpt.get().value().parents().stream().allMatch(k -> k.isKnownBy(player));
             }
         } else {
             return true;

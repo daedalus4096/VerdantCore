@@ -159,14 +159,14 @@ public record ResearchEntry(ResearchEntryKey key, Optional<ResearchDisciplineKey
     }
     
     public boolean isAvailable(@NotNull Player player, @NotNull IPlayerKnowledge knowledgeCapability) {
-        return this.parents.isEmpty() || this.parents.stream().allMatch(key -> key.isKnownBy(player, knowledgeCapability));
+        return this.parents.isEmpty() || this.parents.stream().allMatch(key -> key.isKnownBy(player));
     }
     
     public boolean isUpcoming(@NotNull Player player, @NotNull IPlayerKnowledge knowledgeCapability, @NotNull Optional<TagKey<ResearchEntry>> opaqueTagOpt) {
         RegistryAccess registryAccess = player.level().registryAccess();
         Registry<ResearchEntry> registry = registryAccess.registryOrThrow(this.key.getRegistryKey());
         return this.parents.stream().map(k -> registry.getHolder(k.getRootKey())).noneMatch(opt -> {
-            return opt.isPresent() && ((opaqueTagOpt.isPresent() && opt.get().is(opaqueTagOpt.get()) && !opt.get().value().key().isKnownBy(player, knowledgeCapability)) || !opt.get().value().isAvailable(player, knowledgeCapability));
+            return opt.isPresent() && ((opaqueTagOpt.isPresent() && opt.get().is(opaqueTagOpt.get()) && !opt.get().value().key().isKnownBy(player)) || !opt.get().value().isAvailable(player, knowledgeCapability));
         });
     }
 

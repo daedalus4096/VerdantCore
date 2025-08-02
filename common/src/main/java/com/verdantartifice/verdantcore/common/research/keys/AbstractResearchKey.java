@@ -9,8 +9,9 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.entity.player.Player;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import java.util.Optional;
 
 /**
  * Base class representing an atom in the research hierarchy.
@@ -45,12 +46,11 @@ public abstract class AbstractResearchKey<T extends AbstractResearchKey<T>> {
     protected abstract ResearchKeyType<T> getType();
     
     public abstract IconDefinition getIcon(RegistryAccess registryAccess);
+
+    protected abstract Optional<IPlayerKnowledge> getPlayerKnowledge(@Nullable Player player);
     
-    public boolean isKnownBy(@Nullable Player player, @NotNull IPlayerKnowledge knowledgeCapability) {
-        if (player == null) {
-            return false;
-        }
-        return knowledgeCapability.isResearchComplete(player.level().registryAccess(), this);
+    public boolean isKnownBy(@Nullable Player player) {
+        return this.getPlayerKnowledge(player).map(k -> k.isResearchComplete(player.level().registryAccess(), this)).orElse(false);
     }
     
     public static AbstractResearchKey<?> fromNetwork(RegistryFriendlyByteBuf buf) {
