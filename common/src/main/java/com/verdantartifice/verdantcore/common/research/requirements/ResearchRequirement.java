@@ -52,7 +52,7 @@ public class ResearchRequirement extends AbstractRequirement<ResearchRequirement
         if (this.rootKey instanceof ResearchEntryKey entryKey) {
             return ResearchManagerVC.completeResearch(player, entryKey, true, true, false);
         } else {
-            ServicesVC.CAPABILITIES.knowledge(player).ifPresent(k -> k.addResearch(this.rootKey));
+            ServicesVC.CAPABILITIES.knowledge(player, this.rootKey.getRegistryLocation()).ifPresent(k -> k.addResearch(this.rootKey));
             return true;
         }
     }
