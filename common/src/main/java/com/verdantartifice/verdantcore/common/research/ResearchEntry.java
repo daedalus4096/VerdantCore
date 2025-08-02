@@ -190,44 +190,47 @@ public record ResearchEntry(ResearchEntryKey key, Optional<ResearchDisciplineKey
     }
     
     @NotNull
-    public Set<ResourceLocation> getKnownRecipeIds(@NotNull Player player, @NotNull IPlayerKnowledge knowledge, @NotNull RegistryAccess registryAccess) {
+    public Set<ResourceLocation> getKnownRecipeIds(@NotNull Player player) {
         Set<ResourceLocation> retVal = new HashSet<>();
         if (this.stages().isEmpty()) {
             // If this research entry has no stages, then it can't have any recipes, so just abort
             return retVal;
         }
-        
-        ResearchStage currentStage = null;
-        int currentStageNum = knowledge.getResearchStage(this.key);
-        if (currentStageNum >= 0) {
-            currentStage = this.stages().get(Math.min(currentStageNum, this.stages().size() - 1));
-        }
-        boolean entryComplete = (currentStageNum >= this.stages().size());
-        
-        if (currentStage != null) {
-            retVal.addAll(currentStage.recipes());
-        }
-        if (entryComplete) {
-            for (ResearchAddendum addendum : this.addenda()) {
-                addendum.completionRequirementOpt().ifPresent(req -> {
-                    if (req.isMetBy(player)) {
-                        retVal.addAll(addendum.recipes());
+
+        ServicesVC.CAPABILITIES.knowledge(player, this.key.getRegistryKey().location()).ifPresent(knowledge -> {
+            RegistryAccess registryAccess = player.registryAccess();
+            ResearchStage currentStage = null;
+            int currentStageNum = knowledge.getResearchStage(this.key);
+            if (currentStageNum >= 0) {
+                currentStage = this.stages().get(Math.min(currentStageNum, this.stages().size() - 1));
+            }
+            boolean entryComplete = (currentStageNum >= this.stages().size());
+
+            if (currentStage != null) {
+                retVal.addAll(currentStage.recipes());
+            }
+            if (entryComplete) {
+                for (ResearchAddendum addendum : this.addenda()) {
+                    addendum.completionRequirementOpt().ifPresent(req -> {
+                        if (req.isMetBy(player)) {
+                            retVal.addAll(addendum.recipes());
+                        }
+                    });
+                }
+                registryAccess.registryOrThrow(this.key().getRegistryKey()).forEach(searchEntry -> {
+                    if (!searchEntry.addenda().isEmpty() && knowledge.isResearchComplete(registryAccess, searchEntry.key())) {
+                        for (ResearchAddendum addendum : searchEntry.addenda()) {
+                            addendum.completionRequirementOpt().ifPresent(req -> {
+                                if (req.contains(this.key) && req.isMetBy(player)) {
+                                    retVal.addAll(addendum.recipes());
+                                }
+                            });
+                        }
                     }
                 });
             }
-            registryAccess.registryOrThrow(this.key().getRegistryKey()).forEach(searchEntry -> {
-                if (!searchEntry.addenda().isEmpty() && knowledge.isResearchComplete(registryAccess, searchEntry.key())) {
-                    for (ResearchAddendum addendum : searchEntry.addenda()) {
-                        addendum.completionRequirementOpt().ifPresent(req -> {
-                            if (req.contains(this.key) && req.isMetBy(player)) {
-                                retVal.addAll(addendum.recipes());
-                            }
-                        });
-                    }
-                }
-            });
-        }
-        
+        });
+
         return retVal;
     }
     

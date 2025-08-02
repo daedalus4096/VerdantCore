@@ -48,7 +48,12 @@ public class StackCraftedKey extends AbstractResearchKey<StackCraftedKey> {
     public StackCraftedKey(ItemLike itemLike, ResourceLocation registryLocation) {
         this(new ItemStack(itemLike.asItem()), registryLocation);
     }
-    
+
+    @Override
+    public ResourceLocation getRegistryLocation() {
+        return this.registryLocation;
+    }
+
     @Override
     public String toString() {
         return PREFIX + this.hashCode();

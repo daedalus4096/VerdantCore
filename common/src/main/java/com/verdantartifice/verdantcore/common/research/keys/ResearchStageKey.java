@@ -49,6 +49,11 @@ public class ResearchStageKey extends AbstractResearchKey<ResearchStageKey> {
         this(RegistryEncodedResourceKey.fromResourceKey(rootKey), stage);
     }
 
+    @Override
+    public ResourceLocation getRegistryLocation() {
+        return this.getRegistryKey().location();
+    }
+
     public ResourceKey<Registry<ResearchEntry>> getRegistryKey() {
         return this.key.registryKey();
     }

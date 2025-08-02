@@ -8,6 +8,7 @@ import com.verdantartifice.verdantcore.platform.ServicesVC;
 import net.minecraft.core.RegistryAccess;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
 import org.jetbrains.annotations.Nullable;
 
@@ -35,6 +36,8 @@ public abstract class AbstractResearchKey<T extends AbstractResearchKey<T>> {
     
     @Override
     public abstract boolean equals(Object obj);
+
+    public abstract ResourceLocation getRegistryLocation();
     
     /**
      * Returns the category of requirement to be used when this key is part of a {@link com.verdantartifice.verdantcore.common.research.requirements.ResearchRequirement}.

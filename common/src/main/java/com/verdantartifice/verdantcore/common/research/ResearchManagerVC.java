@@ -7,6 +7,7 @@ import com.verdantartifice.verdantcore.common.research.keys.AbstractResearchKey;
 import com.verdantartifice.verdantcore.common.research.keys.ResearchEntryKey;
 import com.verdantartifice.verdantcore.common.stats.StatsManager;
 import com.verdantartifice.verdantcore.common.util.RegistryUtils;
+import com.verdantartifice.verdantcore.platform.ServicesVC;
 import net.minecraft.core.Holder;
 import net.minecraft.core.Registry;
 import net.minecraft.core.RegistryAccess;
@@ -61,36 +62,38 @@ public class ResearchManagerVC {
                 .findFirst();
     }
     
-    public static boolean isRecipeVisible(ResourceLocation recipeId, Player player, @Nonnull IPlayerKnowledge knowledge, ResourceKey<Registry<ResearchEntry>> registryKey) {
-        ResearchEntry entry = ResearchManagerVC.getEntryForRecipe(player.level().registryAccess(), recipeId, registryKey).orElse(null);
+    public static boolean isRecipeVisible(ResourceLocation recipeId, Player player, ResourceKey<Registry<ResearchEntry>> registryKey) {
+        ResearchEntry entry = ResearchManagerVC.getEntryForRecipe(player.registryAccess(), recipeId, registryKey).orElse(null);
         if (entry == null) {
             // If the recipe has no controlling research, then assume it's not visible
             return false;
         }
 
-        // First check to see if the current stage for the entry has the recipe listed
-        int currentStageIndex = knowledge.getResearchStage(entry.key());
-        if (currentStageIndex == entry.stages().size()) {
-            ResearchStage currentStage = entry.stages().get(currentStageIndex - 1);
-            if (currentStage.recipes().contains(recipeId)) {
-                return true;
+        return ServicesVC.CAPABILITIES.knowledge(player, registryKey.location()).map(knowledge -> {
+            // First check to see if the current stage for the entry has the recipe listed
+            int currentStageIndex = knowledge.getResearchStage(entry.key());
+            if (currentStageIndex == entry.stages().size()) {
+                ResearchStage currentStage = entry.stages().get(currentStageIndex - 1);
+                if (currentStage.recipes().contains(recipeId)) {
+                    return true;
+                }
+            } else if (currentStageIndex >= 0 && currentStageIndex < entry.stages().size()) {
+                ResearchStage currentStage = entry.stages().get(currentStageIndex);
+                if (currentStage.recipes().contains(recipeId)) {
+                    return true;
+                }
             }
-        } else if (currentStageIndex >= 0 && currentStageIndex < entry.stages().size()) {
-            ResearchStage currentStage = entry.stages().get(currentStageIndex);
-            if (currentStage.recipes().contains(recipeId)) {
-                return true;
+
+            // If that doesn't pan out, check to see if any unlocked addendum lists the recipe
+            for (ResearchAddendum addendum : entry.addenda()) {
+                if (addendum.completionRequirementOpt().isPresent() && addendum.recipes().contains(recipeId) && addendum.completionRequirementOpt().get().isMetBy(player)) {
+                    return true;
+                }
             }
-        }
-        
-        // If that doesn't pan out, check to see if any unlocked addendum lists the recipe
-        for (ResearchAddendum addendum : entry.addenda()) {
-            if (addendum.completionRequirementOpt().isPresent() && addendum.recipes().contains(recipeId) && addendum.completionRequirementOpt().get().isMetBy(player)) {
-                return true;
-            }
-        }
-        
-        // Otherwise, return false
-        return false;
+
+            // Otherwise, return false
+            return false;
+        }).orElse(false);
     }
     
     public static boolean isSyncScheduled(@Nullable Player player) {
@@ -107,7 +110,7 @@ public class ResearchManagerVC {
         }
     }
     
-    public static boolean hasPrerequisites(@Nullable Player player, @Nonnull IPlayerKnowledge knowledgeCapability, @Nullable AbstractResearchKey<?> key) {
+    public static boolean hasPrerequisites(@Nullable Player player, @Nullable AbstractResearchKey<?> key) {
         if (player == null) {
             return false;
         }
@@ -115,7 +118,7 @@ public class ResearchManagerVC {
             return true;
         }
         if (key instanceof ResearchEntryKey entryKey) {
-            RegistryAccess registryAccess = player.level().registryAccess();
+            RegistryAccess registryAccess = player.registryAccess();
             Optional<Holder.Reference<ResearchEntry>> entryRefOpt = registryAccess.registryOrThrow(entryKey.getRegistryKey()).getHolder(entryKey.getRootKey());
             if (entryRefOpt.isEmpty() || entryRefOpt.get().value().parents().isEmpty()) {
                 return true;
@@ -128,181 +131,190 @@ public class ResearchManagerVC {
         }
     }
     
-    public static boolean isResearchStarted(@Nonnull IPlayerKnowledge knowledgeCapability, @Nonnull ResourceKey<ResearchEntry> rawKey) {
-        return isResearchStarted(knowledgeCapability, new ResearchEntryKey(rawKey));
+    public static boolean isResearchStarted(@Nonnull Player player, @Nonnull ResourceKey<ResearchEntry> rawKey) {
+        return isResearchStarted(player, new ResearchEntryKey(rawKey));
     }
     
-    public static boolean isResearchStarted(@Nonnull IPlayerKnowledge knowledgeCapability, @Nullable AbstractResearchKey<?> key) {
+    public static boolean isResearchStarted(@Nonnull Player player, @Nullable AbstractResearchKey<?> key) {
         if (key == null) {
             return false;
         }
-        return knowledgeCapability.isResearchKnown(key);
+        return ServicesVC.CAPABILITIES.knowledge(player, key.getRegistryLocation()).map(k -> k.isResearchKnown(key)).orElse(false);
     }
     
-    public static boolean isResearchComplete(@Nonnull IPlayerKnowledge knowledgeCapability, @Nonnull RegistryAccess registryAccess, @Nonnull ResourceKey<ResearchEntry> rawKey) {
-        return isResearchComplete(knowledgeCapability, registryAccess, new ResearchEntryKey(rawKey));
+    public static boolean isResearchComplete(@Nonnull Player player, @Nonnull ResourceKey<ResearchEntry> rawKey) {
+        return isResearchComplete(player, new ResearchEntryKey(rawKey));
     }
     
-    public static boolean isResearchComplete(@Nonnull IPlayerKnowledge knowledgeCapability, @Nonnull RegistryAccess registryAccess, @Nullable AbstractResearchKey<?> key) {
+    public static boolean isResearchComplete(@Nonnull Player player, @Nullable AbstractResearchKey<?> key) {
         if (key == null) {
             return false;
         }
-        return knowledgeCapability.isResearchComplete(registryAccess, key);
+        return ServicesVC.CAPABILITIES.knowledge(player, key.getRegistryLocation()).map(k -> k.isResearchComplete(player.registryAccess(), key)).orElse(false);
     }
     
-    public static boolean completeResearch(@Nullable Player player, @Nonnull IPlayerKnowledge knowledge, @Nonnull ResourceKey<ResearchEntry> rawKey) {
-        return completeResearch(player, knowledge, new ResearchEntryKey(rawKey));
+    public static boolean completeResearch(@Nullable Player player, @Nonnull ResourceKey<ResearchEntry> rawKey) {
+        return completeResearch(player, new ResearchEntryKey(rawKey));
     }
     
-    public static boolean completeResearch(@Nullable Player player, @Nonnull IPlayerKnowledge knowledge, @Nullable AbstractResearchKey<?> key) {
+    public static boolean completeResearch(@Nullable Player player, @Nullable AbstractResearchKey<?> key) {
         // Complete the given research and sync it to the player's client
-        return completeResearch(player, knowledge, key, true);
+        return completeResearch(player, key, true);
     }
     
-    public static boolean completeResearch(@Nullable Player player, @Nonnull IPlayerKnowledge knowledge, @Nullable AbstractResearchKey<?> key, boolean sync) {
+    public static boolean completeResearch(@Nullable Player player, @Nullable AbstractResearchKey<?> key, boolean sync) {
         // Complete the given research, optionally syncing it to the player's client
-        return completeResearch(player, knowledge, key, sync, true, true);
+        return completeResearch(player, key, sync, true, true);
     }
     
-    public static boolean completeResearch(@Nullable Player player, @Nonnull IPlayerKnowledge knowledge, @Nullable AbstractResearchKey<?> key, boolean sync, boolean showNewFlags, boolean showPopups) {
+    public static boolean completeResearch(@Nullable Player player, @Nullable AbstractResearchKey<?> key, boolean sync, boolean showNewFlags, boolean showPopups) {
         // Repeatedly progress the given research until it is completed, optionally syncing it to the player's client
         boolean retVal = false;
-        while (progressResearch(player, knowledge, key, sync, showNewFlags, showPopups)) {
+        while (progressResearch(player, key, sync, showNewFlags, showPopups)) {
             retVal = true;
         }
         return retVal;
     }
     
-    public static void forceGrantWithAllParents(@Nullable Player player, @Nonnull IPlayerKnowledge knowledge, @Nonnull ResourceKey<ResearchEntry> rawKey) {
-        forceGrantWithAllParents(player, knowledge, new ResearchEntryKey(rawKey));
+    public static void forceGrantWithAllParents(@Nullable Player player, @Nonnull ResourceKey<ResearchEntry> rawKey) {
+        forceGrantWithAllParents(player, new ResearchEntryKey(rawKey));
     }
     
-    public static void forceGrantWithAllParents(@Nullable Player player, @Nonnull IPlayerKnowledge knowledge, @Nullable ResearchEntryKey key) {
+    public static void forceGrantWithAllParents(@Nullable Player player, @Nullable ResearchEntryKey key) {
         if (player != null && key != null) {
-            RegistryAccess registryAccess = player.level().registryAccess();
-            if (!knowledge.isResearchComplete(registryAccess, key)) {
-                ResearchEntry entry = RegistryUtils.getEntry(key.getRegistryKey(), key.getRootKey(), registryAccess);
-                if (entry != null) {
-                    // Recursively force-grant all of this entry's parent entries, even if not all of them are required
-                    entry.parents().forEach(parentKey -> forceGrantWithAllParents(player, knowledge, parentKey));
+            ServicesVC.CAPABILITIES.knowledge(player, key.getRegistryLocation()).ifPresent(knowledge -> {
+                RegistryAccess registryAccess = player.registryAccess();
+                if (!knowledge.isResearchComplete(registryAccess, key)) {
+                    ResearchEntry entry = RegistryUtils.getEntry(key.getRegistryKey(), key.getRootKey(), registryAccess);
+                    if (entry != null) {
+                        // Recursively force-grant all of this entry's parent entries, even if not all of them are required
+                        entry.parents().forEach(parentKey -> forceGrantWithAllParents(player, parentKey));
 
-                    for (ResearchStage stage : entry.stages()) {
-                        // Force complete any requirements for any of the entry's stages
-                        stage.completionRequirementOpt().ifPresent(req -> req.forceComplete(player));
-                    }
-                }
-
-                // Once all prerequisites are out of the way, complete this entry itself
-                completeResearch(player, knowledge, key, true, true, false);
-
-                // Mark as updated any research entry that has a stage which requires completion of this entry
-                registryAccess.registryOrThrow(key.getRegistryKey()).forEach(searchEntry -> {
-                    for (ResearchStage searchStage : searchEntry.stages()) {
-                        if (searchStage.completionRequirementOpt().isPresent() && searchStage.completionRequirementOpt().get().contains(key)) {
-                            knowledge.addResearchFlag(searchEntry.key(), IPlayerKnowledge.ResearchFlag.UPDATED);
-                            knowledge.removeResearchFlag(searchEntry.key(), IPlayerKnowledge.ResearchFlag.READ);
-                            break;
+                        for (ResearchStage stage : entry.stages()) {
+                            // Force complete any requirements for any of the entry's stages
+                            stage.completionRequirementOpt().ifPresent(req -> req.forceComplete(player));
                         }
                     }
-                });
-            }
+
+                    // Once all prerequisites are out of the way, complete this entry itself
+                    completeResearch(player, key, true, true, false);
+
+                    // Mark as updated any research entry that has a stage which requires completion of this entry
+                    registryAccess.registryOrThrow(key.getRegistryKey()).forEach(searchEntry -> {
+                        for (ResearchStage searchStage : searchEntry.stages()) {
+                            if (searchStage.completionRequirementOpt().isPresent() && searchStage.completionRequirementOpt().get().contains(key)) {
+                                knowledge.addResearchFlag(searchEntry.key(), IPlayerKnowledge.ResearchFlag.UPDATED);
+                                knowledge.removeResearchFlag(searchEntry.key(), IPlayerKnowledge.ResearchFlag.READ);
+                                break;
+                            }
+                        }
+                    });
+                }
+            });
         }
     }
     
-    public static void forceGrantParentsOnly(@Nullable Player player, @Nonnull IPlayerKnowledge knowledge, @Nullable ResearchEntryKey key) {
+    public static void forceGrantParentsOnly(@Nullable Player player, @Nullable ResearchEntryKey key) {
         if (player != null && key != null) {
-            RegistryAccess registryAccess = player.level().registryAccess();
-            if (!knowledge.isResearchComplete(registryAccess, key)) {
-                ResearchEntry entry = RegistryUtils.getEntry(key.getRegistryKey(), key.getRootKey(), registryAccess);
-                if (entry != null) {
-                    // Recursively force-grant all of this entry's parent entries, even if not all of them are required
-                    entry.parents().forEach(parentKey -> forceGrantWithAllParents(player, knowledge, parentKey));
+            ServicesVC.CAPABILITIES.knowledge(player, key.getRegistryLocation()).ifPresent(knowledge -> {
+                RegistryAccess registryAccess = player.registryAccess();
+                if (!knowledge.isResearchComplete(registryAccess, key)) {
+                    ResearchEntry entry = RegistryUtils.getEntry(key.getRegistryKey(), key.getRootKey(), registryAccess);
+                    if (entry != null) {
+                        // Recursively force-grant all of this entry's parent entries, even if not all of them are required
+                        entry.parents().forEach(parentKey -> forceGrantWithAllParents(player, parentKey));
 
-                    for (ResearchStage stage : entry.stages()) {
-                        // Force complete any requirements for any of the entry's stages
-                        stage.completionRequirementOpt().ifPresent(req -> req.forceComplete(player));
+                        for (ResearchStage stage : entry.stages()) {
+                            // Force complete any requirements for any of the entry's stages
+                            stage.completionRequirementOpt().ifPresent(req -> req.forceComplete(player));
+                        }
                     }
                 }
-            }
+            });
         }
     }
     
-    public static void forceGrantAll(@Nullable Player player, @Nonnull IPlayerKnowledge knowledge, @Nonnull ResourceKey<Registry<ResearchEntry>> registryKey) {
+    public static void forceGrantAll(@Nullable Player player, @Nonnull ResourceKey<Registry<ResearchEntry>> registryKey) {
         if (player != null) {
-            player.level().registryAccess().registryOrThrow(registryKey).forEach(entry -> forceGrantWithAllParents(player, knowledge, entry.key()));
+            player.registryAccess().registryOrThrow(registryKey).forEach(entry -> forceGrantWithAllParents(player, entry.key()));
         }
     }
     
-    public static void forceRevokeWithAllChildren(@Nullable Player player, @Nonnull IPlayerKnowledge knowledge, @Nonnull ResourceKey<ResearchEntry> rawKey) {
-        forceRevokeWithAllChildren(player, knowledge, new ResearchEntryKey(rawKey));
+    public static void forceRevokeWithAllChildren(@Nullable Player player, @Nonnull ResourceKey<ResearchEntry> rawKey) {
+        forceRevokeWithAllChildren(player, new ResearchEntryKey(rawKey));
     }
     
-    public static void forceRevokeWithAllChildren(@Nullable Player player, @Nonnull IPlayerKnowledge knowledge, @Nullable ResearchEntryKey key) {
+    public static void forceRevokeWithAllChildren(@Nullable Player player, @Nullable ResearchEntryKey key) {
         if (player != null && key != null) {
-            RegistryAccess registryAccess = player.level().registryAccess();
-            if (knowledge.isResearchComplete(registryAccess, key)) {
-                // Revoke all child research of this entry
-                registryAccess.registryOrThrow(key.getRegistryKey()).forEach(entry -> {
-                    if (entry.parents().contains(key)) {
-                        forceRevokeWithAllChildren(player, knowledge, entry.key());
-                    }
-                });
+            ServicesVC.CAPABILITIES.knowledge(player, key.getRegistryLocation()).ifPresent(knowledge -> {
+                RegistryAccess registryAccess = player.registryAccess();
+                if (knowledge.isResearchComplete(registryAccess, key)) {
+                    // Revoke all child research of this entry
+                    registryAccess.registryOrThrow(key.getRegistryKey()).forEach(entry -> {
+                        if (entry.parents().contains(key)) {
+                            forceRevokeWithAllChildren(player, entry.key());
+                        }
+                    });
 
-                // Once all children are revoked, revoke this entry itself
-                revokeResearch(player, knowledge, key);
-            }
+                    // Once all children are revoked, revoke this entry itself
+                    revokeResearch(player, key);
+                }
+            });
         }
     }
     
-    public static boolean revokeResearch(@Nullable Player player, @Nonnull IPlayerKnowledge knowledge, @Nullable ResearchEntryKey key) {
+    public static boolean revokeResearch(@Nullable Player player, @Nullable ResearchEntryKey key) {
         // Revoke the given research and sync it to the player's client
-        return revokeResearch(player, knowledge, key, true);
+        return revokeResearch(player, key, true);
     }
     
-    public static boolean revokeResearch(@Nullable Player player, @Nonnull IPlayerKnowledge knowledge, @Nullable ResearchEntryKey key, boolean sync) {
+    public static boolean revokeResearch(@Nullable Player player, @Nullable ResearchEntryKey key, boolean sync) {
         // Remove the given research from the player's known list and optionally sync to the player's client
         if (player == null || key == null) {
             return false;
         }
-        
-        // Remove all recipes that are unlocked by the given research from the player's arcane recipe book
-        if (player instanceof ServerPlayer serverPlayer) {
-            ResearchEntry entry = RegistryUtils.getEntry(key.getRegistryKey(), key.getRootKey(), player.level().registryAccess());
-            if (entry != null) {
-                RecipeManager recipeManager = serverPlayer.level().getRecipeManager();
-                Set<RecipeHolder<?>> recipesToRemove = entry.getAllRecipeIds().stream().map(r -> recipeManager.byKey(r).orElse(null)).filter(Objects::nonNull).collect(Collectors.toSet());
-                ArcaneRecipeBookManager.removeRecipes(recipesToRemove, serverPlayer);
-                serverPlayer.resetRecipes(recipesToRemove);
-            }
-        }
 
-        knowledge.removeResearch(key);
-        if (sync) {
-            scheduleSync(player);
-        }
-        return true;
+        return ServicesVC.CAPABILITIES.knowledge(player, key.getRegistryLocation()).map(knowledge -> {
+            // Remove all recipes that are unlocked by the given research from the player's arcane recipe book
+            if (player instanceof ServerPlayer serverPlayer) {
+                ResearchEntry entry = RegistryUtils.getEntry(key.getRegistryKey(), key.getRootKey(), player.registryAccess());
+                if (entry != null) {
+                    RecipeManager recipeManager = serverPlayer.level().getRecipeManager();
+                    Set<RecipeHolder<?>> recipesToRemove = entry.getAllRecipeIds().stream().map(r -> recipeManager.byKey(r).orElse(null)).filter(Objects::nonNull).collect(Collectors.toSet());
+                    ArcaneRecipeBookManager.removeRecipes(recipesToRemove, serverPlayer);
+                    serverPlayer.resetRecipes(recipesToRemove);
+                }
+            }
+
+            knowledge.removeResearch(key);
+            if (sync) {
+                scheduleSync(player);
+            }
+            return true;
+        }).orElse(false);
     }
     
-    public static boolean progressResearch(@Nullable Player player, @Nonnull IPlayerKnowledge knowledge, @Nonnull ResourceKey<ResearchEntry> rawKey) {
-        return progressResearch(player, knowledge, new ResearchEntryKey(rawKey));
+    public static boolean progressResearch(@Nullable Player player, @Nonnull ResourceKey<ResearchEntry> rawKey) {
+        return progressResearch(player, new ResearchEntryKey(rawKey));
     }
     
-    public static boolean progressResearch(@Nullable Player player, @Nonnull IPlayerKnowledge knowledge, @Nullable ResearchEntryKey key) {
+    public static boolean progressResearch(@Nullable Player player, @Nullable ResearchEntryKey key) {
         // Progress the given research to its next stage and sync to the player's client
-        return progressResearch(player, knowledge, key, true);
+        return progressResearch(player, key, true);
     }
     
-    public static boolean progressResearch(@Nullable Player player, @Nonnull IPlayerKnowledge knowledge, @Nullable ResearchEntryKey key, boolean sync) {
+    public static boolean progressResearch(@Nullable Player player, @Nullable ResearchEntryKey key, boolean sync) {
         // Progress the given research to its next stage and sync to the player's client
-        return progressResearch(player, knowledge, key, sync, true, true);
+        return progressResearch(player, key, sync, true, true);
     }
     
-    public static boolean progressResearch(@Nullable Player player, @Nonnull IPlayerKnowledge knowledge, @Nullable AbstractResearchKey<?> key, boolean sync, boolean showNewFlags, boolean showPopups) {
+    public static boolean progressResearch(@Nullable Player player, @Nullable AbstractResearchKey<?> key, boolean sync, boolean showNewFlags, boolean showPopups) {
         // Progress the given research to its next stage and optionally sync to the player's client
         if (player == null || key == null) {
             return false;
         }
-        RegistryAccess registryAccess = player.level().registryAccess();
+        RegistryAccess registryAccess = player.registryAccess();
+        IPlayerKnowledge knowledge = ServicesVC.CAPABILITIES.knowledge(player, key.getRegistryLocation()).orElse(null);
 
         if (knowledge == null) {
             return false;
@@ -313,7 +325,7 @@ public class ResearchManagerVC {
                 CriteriaTriggersVC.RESEARCH_COMPLETED.get().trigger(serverPlayer, key);
             }
             return false;
-        } else if (!hasPrerequisites(knowledge, registryAccess, key)) {
+        } else if (!hasPrerequisites(player, key)) {
             // If the player doesn't have the prerequisites, just abort
             return false;
         }
@@ -367,7 +379,7 @@ public class ResearchManagerVC {
                 
                 // Grant any sibling research from the current stage
                 for (AbstractResearchKey<?> sibling : currentStage.siblings()) {
-                    completeResearch(player, knowledge, sibling, sync);
+                    completeResearch(player, sibling, sync);
                 }
                 
                 // Open any research to be revealed by the current stage
@@ -399,7 +411,7 @@ public class ResearchManagerVC {
                         
                         // Grant any sibling research from this entry's addenda
                         for (AbstractResearchKey<?> sibling : addendum.siblings()) {
-                            completeResearch(player, knowledge, sibling, sync);
+                            completeResearch(player, sibling, sync);
                         }
                     }
                 }
@@ -448,7 +460,7 @@ public class ResearchManagerVC {
 
                                 // Grant any unlocked sibling research
                                 for (AbstractResearchKey<?> sibling : addendum.siblings()) {
-                                    completeResearch(player, knowledge, sibling, sync);
+                                    completeResearch(player, sibling, sync);
                                 }
                             });
                         }
@@ -479,7 +491,7 @@ public class ResearchManagerVC {
                                         .filter(Objects::nonNull)
                                         .flatMap(d -> d.getEntryStream(registryAccess, entry.key().getRegistryKey()))
                                         .filter(e -> e.finales().isEmpty() && !e.flags().finaleExempt())
-                                        .allMatch(e -> e.isComplete(knowledge, registryAccess));
+                                        .allMatch(e -> e.isComplete(player));
                                 if (shouldUnlock) {
                                     knowledge.addResearch(finaleKey);
                                     if (showPopups) {
@@ -508,11 +520,11 @@ public class ResearchManagerVC {
         return true;
     }
     
-    public static boolean addKnowledge(Player player, @Nonnull IPlayerKnowledge knowledge, @Nonnull KnowledgeType type, int points) {
-        return addKnowledge(player, knowledge, type, points, true);
+    public static boolean addKnowledge(Player player, @Nonnull KnowledgeType type, int points) {
+        return addKnowledge(player, type, points, true);
     }
     
-    public static boolean addKnowledge(Player player, @Nonnull IPlayerKnowledge knowledge, @Nonnull KnowledgeType type, int points, boolean scheduleSync) {
+    public static boolean addKnowledge(Player player, @Nonnull KnowledgeType type, int points, boolean scheduleSync) {
         // Add the given number of knowledge points to the player and sync to their client
         int levelsBefore = knowledge.getKnowledge(type);
         boolean success = knowledge.addKnowledge(type, points);

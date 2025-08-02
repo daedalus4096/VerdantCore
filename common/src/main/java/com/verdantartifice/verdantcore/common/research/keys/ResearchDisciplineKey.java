@@ -46,6 +46,11 @@ public class ResearchDisciplineKey extends AbstractResearchKey<ResearchDisciplin
         this(RegistryEncodedResourceKey.fromResourceKey(rootKey));
     }
 
+    @Override
+    public ResourceLocation getRegistryLocation() {
+        return this.getRegistryKey().location();
+    }
+
     public ResourceKey<Registry<ResearchDiscipline>> getRegistryKey() {
         return this.key.registryKey();
     }

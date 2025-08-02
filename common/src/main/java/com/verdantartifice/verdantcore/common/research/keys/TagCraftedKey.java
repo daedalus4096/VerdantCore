@@ -45,6 +45,11 @@ public class TagCraftedKey extends AbstractResearchKey<TagCraftedKey> {
     }
 
     @Override
+    public ResourceLocation getRegistryLocation() {
+        return this.registryLocation;
+    }
+
+    @Override
     public String toString() {
         return PREFIX + this.tagKey.hashCode();
     }

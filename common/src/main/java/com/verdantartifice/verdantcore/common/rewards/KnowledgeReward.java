@@ -63,7 +63,7 @@ public class KnowledgeReward extends AbstractReward<KnowledgeReward> {
     public Component getDescription(Player player) {
         Component amountText = Component.literal(Integer.toString(this.levels));
         Component typeText = Component.translatable(this.knowledgeType.getNameTranslationKey());
-        return Component.translatable("label.primalmagick.scribe_table.grid.reward.knowledge", typeText, amountText);
+        return Component.translatable("label.verdantcore.scribe_table.grid.reward.knowledge", typeText, amountText);
     }
 
     @Override
