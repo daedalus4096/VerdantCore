@@ -484,12 +484,12 @@ public class ResearchManagerVC {
                 entry.disciplineKeyOpt().ifPresent(disciplineKey -> {
                     ResearchDiscipline discipline = registryAccess.registryOrThrow(disciplineKey.getRegistryKey()).get(disciplineKey.getRootKey());
                     if (discipline != null) {
-                        for (ResearchEntry finaleEntry : discipline.getFinaleEntries(registryAccess, entry.key().getRegistryKey())) {
+                        for (ResearchEntry finaleEntry : discipline.getFinaleEntries(registryAccess)) {
                             ResearchEntryKey finaleKey = finaleEntry.key();
                             if (!knowledge.isResearchKnown(finaleKey)) {
                                 boolean shouldUnlock = finaleEntry.finales().stream().map(k -> registryAccess.registryOrThrow(k.getRegistryKey()).get(k.getRootKey()))
                                         .filter(Objects::nonNull)
-                                        .flatMap(d -> d.getEntryStream(registryAccess, entry.key().getRegistryKey()))
+                                        .flatMap(d -> d.getEntryStream(registryAccess))
                                         .filter(e -> e.finales().isEmpty() && !e.flags().finaleExempt())
                                         .allMatch(e -> e.isComplete(player));
                                 if (shouldUnlock) {
