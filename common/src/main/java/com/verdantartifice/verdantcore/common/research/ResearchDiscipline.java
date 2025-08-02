@@ -4,7 +4,6 @@ import com.google.common.base.Preconditions;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.verdantartifice.verdantcore.Constants;
-import com.verdantartifice.verdantcore.common.capabilities.IPlayerKnowledge;
 import com.verdantartifice.verdantcore.common.network.PacketHandler;
 import com.verdantartifice.verdantcore.common.network.packets.data.SyncResearchFlagsPacket;
 import com.verdantartifice.verdantcore.common.research.keys.ResearchDisciplineKey;
@@ -19,8 +18,8 @@ import net.minecraft.core.RegistryAccess;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.player.Player;
+import org.jetbrains.annotations.NotNull;
 
-import javax.annotation.Nonnull;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +43,7 @@ public record ResearchDiscipline(ResearchDisciplineKey key, Optional<AbstractReq
                 Codec.INT.optionalFieldOf("indexSortOrder").forGetter(ResearchDiscipline::indexSortOrder)
             ).apply(instance, ResearchDiscipline::new));
 
-    @Nonnull
+    @NotNull
     public String getNameTranslationKey() {
         return String.join(".", "research_discipline", Constants.MOD_ID, this.key.getRootKey().location().getPath());
     }
@@ -53,25 +52,25 @@ public record ResearchDiscipline(ResearchDisciplineKey key, Optional<AbstractReq
         return registryAccess.registryOrThrow(registryKey).stream().filter(e -> e.isForDiscipline(this.key));
     }
 
-    public boolean isUnlocked(Player player, ResourceKey<Registry<ResearchEntry>> registryKey) {
+    public boolean isUnlocked(@NotNull Player player) {
         return this.unlockRequirementOpt().map(req -> req.isMetBy(player)).orElse(true);
     }
 
-    public boolean isHighlighted(@Nonnull IPlayerKnowledge knowledgeCapability, @Nonnull RegistryAccess registryAccess, ResourceKey<Registry<ResearchEntry>> registryKey) {
-        return this.getEntryStream(registryAccess, registryKey).anyMatch(entry -> entry.isHighlighted(knowledgeCapability));
+    public boolean isHighlighted(@NotNull Player player, ResourceKey<Registry<ResearchEntry>> registryKey) {
+        return this.getEntryStream(player.registryAccess(), registryKey).anyMatch(entry -> entry.isHighlighted(player));
     }
 
-    public boolean isUnread(@Nonnull IPlayerKnowledge knowledgeCapability, @Nonnull RegistryAccess registryAccess, ResourceKey<Registry<ResearchEntry>> registryKey) {
-        return this.getEntryStream(registryAccess, registryKey).anyMatch(entry -> entry.isUnread(knowledgeCapability, registryAccess));
+    public boolean isUnread(@NotNull Player player, ResourceKey<Registry<ResearchEntry>> registryKey) {
+        return this.getEntryStream(player.registryAccess(), registryKey).anyMatch(entry -> entry.isUnread(player));
     }
 
-    public int getUnreadEntryCount(@Nonnull IPlayerKnowledge knowledgeCapability, @Nonnull RegistryAccess registryAccess, ResourceKey<Registry<ResearchEntry>> registryKey) {
-        return this.getEntryStream(registryAccess, registryKey).mapToInt(e -> e.isUnread(knowledgeCapability, registryAccess) ? 1 : 0).sum();
+    public int getUnreadEntryCount(@NotNull Player player, ResourceKey<Registry<ResearchEntry>> registryKey) {
+        return this.getEntryStream(player.registryAccess(), registryKey).mapToInt(e -> e.isUnread(player) ? 1 : 0).sum();
     }
 
-    public void markAllAsRead(Player player, @Nonnull IPlayerKnowledge knowledgeCapability, @Nonnull RegistryAccess registryAccess, ResourceKey<Registry<ResearchEntry>> registryKey) {
-        this.getEntryStream(player.registryAccess(), registryKey).filter(e -> e.isUnread(knowledgeCapability, registryAccess)).forEach(e -> {
-            e.markRead(knowledgeCapability);
+    public void markAllAsRead(@NotNull Player player, ResourceKey<Registry<ResearchEntry>> registryKey) {
+        this.getEntryStream(player.registryAccess(), registryKey).filter(e -> e.isUnread(player)).forEach(e -> {
+            e.markRead(player);
             if (player.level().isClientSide()) {
                 PacketHandler.sendToServer(new SyncResearchFlagsPacket(player, e.key()));
             }
@@ -83,7 +82,7 @@ public record ResearchDiscipline(ResearchDisciplineKey key, Optional<AbstractReq
      * 
      * @return finale research entries for this discipline
      */
-    @Nonnull
+    @NotNull
     public List<ResearchEntry> getFinaleEntries(RegistryAccess registryAccess, ResourceKey<Registry<ResearchEntry>> registryKey) {
         return registryAccess.registryOrThrow(registryKey).stream().filter(e -> e.isFinaleFor(this.key)).toList();
     }
